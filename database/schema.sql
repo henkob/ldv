@@ -43,23 +43,24 @@ alter table public.trips enable row level security;
 -- först när autentisering och rollmodell har implementerats.
 -- Service role får aldrig exponeras i frontend.
 
--- Rumskamrat är knuten till en viss resa, inte personens permanenta profil.
--- Värdet kan vara null när rumskamrat ännu inte är bestämd.
-alter table public.trip_participation
- add column if not exists roommate_person_id uuid references public.people(id);
-alter table public.trip_participation
- add constraint roommate_not_self check (roommate_person_id is null or roommate_person_id <> person_id);
--- Säkerställ i applikationslogiken att rumskamraten deltar i samma resa.
--- Låt reseledningen bekräfta rumsfördelningen; deltagarens val är ett önskemål.
+-- Privat rumsfördelning: ENDAST reseledningen ska få åtkomst.
+-- Separat tabell förhindrar att uppgiften oavsiktligt följer med i deltagar-API.
+create table if not exists public.room_assignments (
+ trip_id bigint not null references public.trips(id) on delete cascade,
+ person_id uuid not null,
+ roommate_person_id uuid,
+ updated_at timestamptz not null default now(),
+ primary key(trip_id, person_id),
+ foreign key(person_id, trip_id)
+   references public.trip_participation(person_id, trip_id) on delete cascade,
+ foreign key(roommate_person_id, trip_id)
+   references public.trip_participation(person_id, trip_id),
+ constraint not_own_roommate check (roommate_person_id is null or roommate_person_id <> person_id)
+);
+alter table public.room_assignments enable row level security;
+-- Inga klientpolicys ännu: även inloggade deltagare nekas åtkomst.
+-- Adminåtkomst ska implementeras med en säker serverfunktion och rollkontroll.
+-- Deltagare får varken se, välja eller ändra rumskamrat.
 
--- Integritetsregel: roommate_person_id är en privat uppgift.
--- Exponera aldrig denna kolumn i publika deltagarvyer eller allmänna API-svar.
--- Endast den berörda deltagaren och behörig reseledning ska få läsa/ändra.
--- OBS: RLS är radbaserad, inte kolumnbaserad. En generell SELECT-policy
--- för deltagare på trip_participation skulle även exponera roommate_person_id.
--- Använd därför separata behörighetskontrollerade vyer/RPC:er eller
--- en privat tabell med strikt RLS innan någon SELECT-policy aktiveras.
-
--- Beslut: deltagaren får INTE se eller ändra rumskamrat.
--- Endast reseledningen får läsa och ändra roommate_person_id.
--- Fältet får inte ingå i Min profil eller i deltagargalleriets API.
+-- Behörigheter för övriga tabeller, bildlagring och administratörer
+-- måste färdigställas och testas innan registret tas i drift.
