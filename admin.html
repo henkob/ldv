@@ -31,7 +31,9 @@ function renderPeople(){
  const list=el('people-list'),query=el('person-search').value.trim().toLocaleLowerCase('sv'),filter=el('person-filter').value,experience=el('experience-filter').value;
  list.replaceChildren();
  const filtered=peopleCache.filter(p=>{const selected=selectedCache.has(p.id);return (filter==='all'||(filter==='selected'?selected:!selected))&&(experience==='all'||(tripCounts.has(p.id)&&(experience==='rookie'?tripCounts.get(p.id)===0:tripCounts.get(p.id)>=8)))&&(p.first_name+' '+p.last_name).toLocaleLowerCase('sv').includes(query)});
- el('people-count').textContent=selectedCache.size+' deltagare av '+peopleCache.length+' personer. Visar '+filtered.length+'.';
+ const selectedCounts=[...selectedCache].map(id=>tripCounts.get(id)).filter(n=>Number.isFinite(n));
+ const rookies=selectedCounts.filter(n=>n===0).length,veterans=selectedCounts.filter(n=>n>=8).length;
+ el('people-count').textContent=selectedCache.size+' deltagare av '+peopleCache.length+' personer. Visar '+filtered.length+'. Tidigare resor: '+rookies+' rookies, '+veterans+' veteraner (8+).';
  if(!filtered.length){list.textContent='Inga personer matchar filtret.';return}
  for(const person of filtered){
   const label=document.createElement('label');label.className='person-row';
