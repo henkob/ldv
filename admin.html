@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LDV – Administration</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#132653;background:#eaf3ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#cbdff8,#f4f7ff)}main{max-width:760px;margin:7vh auto;padding:24px}.card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 14px 45px #142e551c}h1{margin:0 0 6px}p{line-height:1.5}label{display:block;margin:15px 0 6px;font-weight:650}input,button{font:inherit;width:100%;border-radius:12px;padding:13px}input{border:1px solid #bccbe0}button{border:0;background:#173c83;color:#fff;cursor:pointer;margin-top:15px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e6eaf3;color:#17335e}.danger{background:#a02c40}.muted{color:#566782}.status{font-weight:750;padding:12px;border-radius:12px;background:#e9eef8;margin:15px 0}.hidden{display:none}.error{color:#9e2235}.success{color:#14683a}select{width:100%;padding:12px;border-radius:12px;border:1px solid #bccbe0}a{color:#174eaa}.toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}.toolbar label{margin-top:6px}.toolbar input,.toolbar select{margin-top:6px}.person-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #e7edf5;font-weight:400}.person-row input{width:auto;flex:none}.person-row span{flex:1}.trip-count{font-size:.82rem;color:#506586;white-space:nowrap}.rookie{font-weight:700;color:#a25b0b}.count{font-weight:650;margin:12px 0}.person-row[hidden]{display:none!important}@media(max-width:520px){.toolbar{grid-template-columns:1fr}}textarea{width:100%;padding:12px;border:1px solid #bccbe0;border-radius:12px;font:inherit;min-height:100px}.edit-person{width:auto;padding:7px 12px;margin:0}.profile-panel{margin:20px 0;padding:18px;border:1px solid #cbd8e8;border-radius:14px;background:#f8fbff}.room-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.room-grid label{margin:0}.room-entry{padding:9px 0;border-bottom:1px solid #e7edf5}.room-entry button{width:auto;padding:7px 12px;margin:0 0 0 10px}.history-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #e1e9f3}.history-row input{width:auto}.history-row span{flex:1}.history-status{font-weight:650}.profile-actions{display:flex;gap:12px}.profile-actions button{flex:1}small{display:block;margin-top:14px;line-height:1.5}
+:root{font-family:system-ui,-apple-system,sans-serif;color:#132653;background:#eaf3ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#cbdff8,#f4f7ff)}main{max-width:760px;margin:7vh auto;padding:24px}.card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 14px 45px #142e551c}h1{margin:0 0 6px}p{line-height:1.5}label{display:block;margin:15px 0 6px;font-weight:650}input,button{font:inherit;width:100%;border-radius:12px;padding:13px}input{border:1px solid #bccbe0}button{border:0;background:#173c83;color:#fff;cursor:pointer;margin-top:15px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e6eaf3;color:#17335e}.danger{background:#a02c40}.muted{color:#566782}.status{font-weight:750;padding:12px;border-radius:12px;background:#e9eef8;margin:15px 0}.hidden{display:none}.error{color:#9e2235}.success{color:#14683a}select{width:100%;padding:12px;border-radius:12px;border:1px solid #bccbe0}a{color:#174eaa}.toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}.toolbar label{margin-top:6px}.toolbar input,.toolbar select{margin-top:6px}.person-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #e7edf5;font-weight:400}.person-row input{width:auto;flex:none}.person-row span{flex:1}.trip-count{font-size:.82rem;color:#506586;white-space:nowrap}.rookie{font-weight:700;color:#a25b0b}.count{font-weight:650;margin:12px 0}.person-row[hidden]{display:none!important}@media(max-width:520px){.toolbar{grid-template-columns:1fr}}textarea{width:100%;padding:12px;border:1px solid #bccbe0;border-radius:12px;font:inherit;min-height:100px}.edit-person{width:auto;padding:7px 12px;margin:0}.profile-panel{margin:20px 0;padding:18px;border:1px solid #cbd8e8;border-radius:14px;background:#f8fbff}.room-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.room-grid label{margin:0}.room-group{border:1px solid #dbe5f2;border-radius:12px;padding:12px 15px;margin:12px 0;background:#fbfdff}.room-group h3{margin:0 0 8px}.room-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e7edf5}.room-entry:last-child{border-bottom:0}.room-entry button{width:auto;padding:7px 12px;margin:0 0 0 10px}.history-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #e1e9f3}.history-row input{width:auto}.history-row span{flex:1}.history-status{font-weight:650}.profile-actions{display:flex;gap:12px}.profile-actions button{flex:1}small{display:block;margin-top:14px;line-height:1.5}
 </style></head><body><main><div class="card"><h1>LDV administration</h1><p class="muted">Endast reseledningen. Här styr du när deltagarappen är öppen.</p>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
@@ -63,15 +63,37 @@ async function loadRooms(){
  if(error){list.textContent='Kunde inte läsa rum. Kör migration 007 i Supabase först.';return}
  roomCache=new Map((data??[]).map(r=>[r.person_id,r]));
  const participants=peopleCache.filter(p=>selectedCache.has(p.id));
- const assigned=participants.filter(p=>roomCache.get(p.id)?.room_label||roomCache.get(p.id)?.roommate_person_id).length;
- el('rooms-summary').textContent=assigned+' av '+participants.length+' deltagare har rumsuppgift.';
+ const byId=new Map(participants.map(p=>[p.id,p]));
+ const groups=new Map(),unassigned=[];
  for(const p of participants){
-  const row=document.createElement('div');row.className='room-entry';
-  const mate=peopleCache.find(x=>x.id===roomCache.get(p.id)?.roommate_person_id);
-  const label=document.createElement('span');label.textContent=p.first_name+' '+p.last_name+' · '+(roomCache.get(p.id)?.room_label||'Rum saknas')+(mate?' · med '+mate.first_name+' '+mate.last_name:'');
-  const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Ändra';btn.onclick=()=>editRoom(p.id);
-  row.append(label,btn);list.append(row);
+  const room=roomCache.get(p.id),label=room?.room_label?.trim(),mate=room?.roommate_person_id;
+  if(!label&&!mate){unassigned.push(p);continue}
+  const key=label?'room:'+label.toLocaleLowerCase('sv'):'pair:'+([p.id,mate].filter(Boolean).sort().join(':'));
+  if(!groups.has(key))groups.set(key,{title:label?'Rum '+label:'Rum utan nummer',people:[]});
+  groups.get(key).people.push(p);
  }
+ const sorted=[...groups.values()].sort((a,b)=>a.title.localeCompare(b.title,'sv',{numeric:true}));
+ const assigned=participants.length-unassigned.length;
+ el('rooms-summary').textContent=sorted.length+' rumsgrupper · '+assigned+' av '+participants.length+' deltagare placerade · '+unassigned.length+' utan placering.';
+ function addPerson(parent,p){
+  const row=document.createElement('div');row.className='room-entry';
+  const label=document.createElement('span');label.textContent=p.first_name+' '+p.last_name;
+  const mate=roomCache.get(p.id)?.roommate_person_id;
+  if(mate&&!byId.has(mate))label.textContent+=' · rumskompis saknas i deltagarlistan';
+  const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Ändra';btn.setAttribute('aria-label','Ändra rum för '+p.first_name+' '+p.last_name);btn.onclick=()=>editRoom(p.id);
+  row.append(label,btn);parent.append(row);
+ }
+ for(const group of sorted){
+  const section=document.createElement('section');section.className='room-group';
+  const title=document.createElement('h3');title.textContent=group.title+' ('+group.people.length+' personer)';
+  section.append(title);group.people.forEach(p=>addPerson(section,p));list.append(section);
+ }
+ if(unassigned.length){
+  const section=document.createElement('section');section.className='room-group';
+  const title=document.createElement('h3');title.textContent='Saknar rumsplacering ('+unassigned.length+')';
+  section.append(title);unassigned.forEach(p=>addPerson(section,p));list.append(section);
+ }
+ if(!participants.length)list.textContent='Inga deltagare markerade för den här resan.';
 }
 function editRoom(id){
  const p=peopleCache.find(x=>x.id===id);if(!p)return;
