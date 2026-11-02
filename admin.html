@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LDV – Administration</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#132653;background:#eaf3ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#cbdff8,#f4f7ff)}main{max-width:760px;margin:7vh auto;padding:24px}.card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 14px 45px #142e551c}h1{margin:0 0 6px}p{line-height:1.5}label{display:block;margin:15px 0 6px;font-weight:650}input,button{font:inherit;width:100%;border-radius:12px;padding:13px}input{border:1px solid #bccbe0}button{border:0;background:#173c83;color:#fff;cursor:pointer;margin-top:15px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e6eaf3;color:#17335e}.danger{background:#a02c40}.muted{color:#566782}.status{font-weight:750;padding:12px;border-radius:12px;background:#e9eef8;margin:15px 0}.hidden{display:none}.error{color:#9e2235}.success{color:#14683a}select{width:100%;padding:12px;border-radius:12px;border:1px solid #bccbe0}a{color:#174eaa}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}.toolbar label{margin-top:6px}.toolbar input,.toolbar select{margin-top:6px}.person-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #e7edf5;font-weight:400}.person-row input{width:auto;flex:none}.person-row span{flex:1}.count{font-weight:650;margin:12px 0}.person-row[hidden]{display:none!important}@media(max-width:520px){.toolbar{grid-template-columns:1fr}}textarea{width:100%;padding:12px;border:1px solid #bccbe0;border-radius:12px;font:inherit;min-height:100px}.edit-person{width:auto;padding:7px 12px;margin:0}.profile-panel{margin:20px 0;padding:18px;border:1px solid #cbd8e8;border-radius:14px;background:#f8fbff}.history-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #e1e9f3}.history-row input{width:auto}.history-row span{flex:1}.history-status{font-weight:650}.profile-actions{display:flex;gap:12px}.profile-actions button{flex:1}small{display:block;margin-top:14px;line-height:1.5}
+:root{font-family:system-ui,-apple-system,sans-serif;color:#132653;background:#eaf3ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#cbdff8,#f4f7ff)}main{max-width:760px;margin:7vh auto;padding:24px}.card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 14px 45px #142e551c}h1{margin:0 0 6px}p{line-height:1.5}label{display:block;margin:15px 0 6px;font-weight:650}input,button{font:inherit;width:100%;border-radius:12px;padding:13px}input{border:1px solid #bccbe0}button{border:0;background:#173c83;color:#fff;cursor:pointer;margin-top:15px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e6eaf3;color:#17335e}.danger{background:#a02c40}.muted{color:#566782}.status{font-weight:750;padding:12px;border-radius:12px;background:#e9eef8;margin:15px 0}.hidden{display:none}.error{color:#9e2235}.success{color:#14683a}select{width:100%;padding:12px;border-radius:12px;border:1px solid #bccbe0}a{color:#174eaa}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}.toolbar label{margin-top:6px}.toolbar input,.toolbar select{margin-top:6px}.person-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #e7edf5;font-weight:400}.person-row input{width:auto;flex:none}.person-row span{flex:1}.trip-count{font-size:.82rem;color:#506586;white-space:nowrap}.rookie{font-weight:700;color:#a25b0b}.count{font-weight:650;margin:12px 0}.person-row[hidden]{display:none!important}@media(max-width:520px){.toolbar{grid-template-columns:1fr}}textarea{width:100%;padding:12px;border:1px solid #bccbe0;border-radius:12px;font:inherit;min-height:100px}.edit-person{width:auto;padding:7px 12px;margin:0}.profile-panel{margin:20px 0;padding:18px;border:1px solid #cbd8e8;border-radius:14px;background:#f8fbff}.history-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #e1e9f3}.history-row input{width:auto}.history-row span{flex:1}.history-status{font-weight:650}.profile-actions{display:flex;gap:12px}.profile-actions button{flex:1}small{display:block;margin-top:14px;line-height:1.5}
 </style></head><body><main><div class="card"><h1>LDV administration</h1><p class="muted">Endast reseledningen. Här styr du när deltagarappen är öppen.</p>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
@@ -14,7 +14,7 @@ import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const supabase=createClient('https://hoisvaisfeptkdwmdlmg.supabase.co','sb_publishable_pA_qhdlvQ35sIdix1GEWfA_Vn-b5Pzi');
 const el=id=>document.getElementById(id);
 const say=(s,err=false)=>{el('message').textContent=s;el('message').className=err?'error':'success'};
-let current=null;let peopleCache=[];let selectedCache=new Set();let historyRequest=0;
+let current=null;let peopleCache=[];let selectedCache=new Set();let tripCounts=new Map();let historyRequest=0;
 async function load(){
  const {data:{user},error:authError}=await supabase.auth.getUser();
  if(authError||!user){el('login').classList.remove('hidden');el('forgot').classList.remove('hidden');el('panel').classList.add('hidden');return}
@@ -37,21 +37,22 @@ function renderPeople(){
   const label=document.createElement('label');label.className='person-row';
   const cb=document.createElement('input');cb.type='checkbox';cb.checked=selectedCache.has(person.id);
   const name=document.createElement('span');name.textContent=person.first_name+' '+person.last_name;
-  const edit=document.createElement('button');edit.type='button';edit.className='secondary edit-person';edit.textContent='Redigera';edit.setAttribute('aria-label','Redigera '+person.first_name+' '+person.last_name);edit.onclick=()=>openProfile(person.id);label.append(cb,name,edit);list.append(label);
+  const edit=document.createElement('button');edit.type='button';edit.className='secondary edit-person';edit.textContent='Redigera';edit.setAttribute('aria-label','Redigera '+person.first_name+' '+person.last_name);edit.onclick=()=>openProfile(person.id);const count=document.createElement('span');count.className='trip-count';const n=tripCounts.get(person.id);count.textContent=n===undefined?'':n===0?'Rookie':n+' tidigare resor';if(n===0)count.classList.add('rookie');label.append(cb,name,count,edit);list.append(label);
   cb.onchange=async()=>{const wanted=cb.checked;cb.disabled=true;const {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:Number(el('trip').value),p_selected:wanted});if(error){cb.checked=!wanted;say('Kunde inte ändra deltagandet: '+error.message,true)}else{if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);say('Deltagarlistan uppdaterad.');renderPeople()}cb.disabled=false};
  }
 }
 async function loadPeople(){
  const tripId=Number(el('trip').value),list=el('people-list');
- list.replaceChildren();el('people-count').textContent='';peopleCache=[];selectedCache=new Set();
+ list.replaceChildren();el('people-count').textContent='';peopleCache=[];selectedCache=new Set();tripCounts=new Map();
  if(!tripId){list.textContent='Välj en resa först.';return}
  list.textContent='Läser personregistret …';
- const [{data:people,error:e1},{data:participants,error:e2}]=await Promise.all([supabase.rpc('ldv_admin_people'),supabase.rpc('ldv_admin_participants',{p_trip_id:tripId})]);
+ const [{data:people,error:e1},{data:participants,error:e2},{data:counts,error:e3}]=await Promise.all([supabase.rpc('ldv_admin_people'),supabase.rpc('ldv_admin_participants',{p_trip_id:tripId}),supabase.rpc('ldv_admin_trip_counts',{p_trip_id:tripId})]);
  if(tripId!==Number(el('trip').value))return;
  if(e1||e2){list.textContent='Kunde inte läsa deltagare. Kontrollera adminfunktionerna i Supabase.';return}
  if(!people?.length){list.textContent='Inga personer i registret ännu.';return}
  peopleCache=[...people].sort((a,b)=>(a.first_name+' '+a.last_name).localeCompare(b.first_name+' '+b.last_name,'sv'));
  selectedCache=new Set((participants??[]).filter(p=>p.status!=='cancelled').map(p=>p.person_id));
+ if(!e3)tripCounts=new Map((counts??[]).map(c=>[c.person_id,Number(c.previous_trips)]));else say('Antal tidigare resor visas när migration 006 körts i Supabase.',true);
  renderPeople();
 }
 async function openProfile(id){
@@ -81,7 +82,7 @@ async function loadHistory(id){
   cb.onchange=async()=>{const wanted=cb.checked;cb.disabled=true;
    const {error}=await supabase.rpc('ldv_admin_set_person_history',{p_person_id:id,p_trip_id:trip.trip_id,p_participated:wanted});
    cb.disabled=false;if(error){cb.checked=!wanted;say('Kunde inte ändra historiken: '+error.message,true);return}
-   trip.participated=wanted;summary();say('Resehistoriken uppdaterad.');
+   trip.participated=wanted;summary();tripCounts.set(id,history.filter(t=>t.participated&&t.year<Number(el('trip').selectedOptions[0]?.textContent?.slice(0,4))).length);renderPeople();say('Resehistoriken uppdaterad.');
   };
  }
 }
