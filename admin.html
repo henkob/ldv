@@ -5,6 +5,8 @@
 </style></head><body><main><div class="card"><h1>LDV administration</h1><p class="muted">Endast reseledningen. Här styr du när deltagarappen är öppen.</p>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
+<button id="forgot" type="button" class="secondary">Glömt lösenord?</button>
+<form id="reset" class="hidden"><h2>Välj nytt lösenord</h2><label for="newpassword">Nytt lösenord (minst 12 tecken)</label><input id="newpassword" type="password" autocomplete="new-password" minlength="12" required><button type="submit">Spara nytt lösenord</button></form>
 <div id="panel" class="hidden"><p id="who" class="muted"></p><div id="state" class="status">Läser status …</div><label for="trip">Aktuell resa</label><select id="trip"><option value="">Välj resa</option></select><button id="open" type="button">Öppna appen</button><button id="lock" type="button" class="danger">Lås appen</button><button id="logout" type="button" class="secondary">Logga ut</button><small>Endast administratörer kan ändra status. Appen öppnas aldrig automatiskt. Innan deltagaruppgifter publiceras måste även databasens läsbehörigheter och bildlagringen skyddas.</small></div>
 <p><a href="./index.html">Tillbaka till LDV</a></p></div></main>
 <script type="module">
@@ -25,6 +27,9 @@ async function load(){
  el('trip').replaceChildren(new Option('Välj resa',''),...(trips??[]).map(t=>new Option(t.year+' – '+t.destination,String(t.id))));
  if(current?.active_trip_id)el('trip').value=String(current.active_trip_id);
 }
+el('forgot').onclick=async()=>{const email=el('email').value.trim();if(!email){say('Ange din e-postadress först.',true);return}const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:'https://henkob.github.io/ldv/admin.html'});say(error?'Kunde inte skicka återställningsmejl: '+error.message:'Om adressen finns skickas ett mejl med en återställningslänk.',!!error)};
+supabase.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){el('login').classList.add('hidden');el('forgot').classList.add('hidden');el('panel').classList.add('hidden');el('reset').classList.remove('hidden');say('Ange ett nytt lösenord.')}});
+el('reset').addEventListener('submit',async e=>{e.preventDefault();const password=el('newpassword').value;const {error}=await supabase.auth.updateUser({password});if(error){say('Kunde inte uppdatera lösenordet: '+error.message,true);return}el('reset').classList.add('hidden');el('forgot').classList.remove('hidden');el('newpassword').value='';say('Lösenordet är ändrat.');await load()});
 el('login').addEventListener('submit',async e=>{e.preventDefault();say('');const {error}=await supabase.auth.signInWithPassword({email:el('email').value,password:el('password').value});if(error){say('Inloggningen misslyckades. Kontrollera e-post och lösenord.',true);return}el('password').value='';await load()});
 async function change(open){
  const id=Number(el('trip').value);if(open&&!id){say('Välj aktuell resa först.',true);return}
