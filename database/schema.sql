@@ -59,3 +59,7 @@ alter table public.trip_participation
 -- för deltagare på trip_participation skulle även exponera roommate_person_id.
 -- Använd därför separata behörighetskontrollerade vyer/RPC:er eller
 -- en privat tabell med strikt RLS innan någon SELECT-policy aktiveras.
+
+-- Beslut: deltagaren får INTE se eller ändra rumskamrat.
+-- Endast reseledningen får läsa och ändra roommate_person_id.
+-- Fältet får inte ingå i Min profil eller i deltagargalleriets API.
