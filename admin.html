@@ -320,7 +320,7 @@ el('csv-run').addEventListener('click',async()=>{
  if(!confirm('Importera 80 deltagare till St. Anton 2027? Profiler och deltagande uppdateras. Tidigare resehistorik ändras inte.'))return;
  el('csv-run').disabled=true;const out=el('csv-preview');let done=0;
  for(const r of csvImportRows){
-  const full=r.name.trim().split(/\s+/);const params={p_person_id:r.person.id,p_first_name:r.name==='Stina Byström'?'Stina':/^marie[ -]+louise hernquist$/i.test(r.name)?'Marie-Louise':r.person.first_name,p_last_name:r.name==='Helena Lindström'?'Lindström':r.person.last_name,p_nickname:r.nickname||'',p_email:r.email||'',p_phone:r.phone||'',p_who_is_who:r.presentation||'',p_helmet_color:r.helmet||'',p_jacket_color:r.jacket||'',p_pants_color:r.pants||''};
+  const full=r.name.trim().split(/\s+/);const params={p_person_id:r.person.id,p_first_name:r.name==='Stina Byström'?'Stina':/^marie[ -]+louise hernquist$/i.test(r.name)?'Marie-Louise':r.person.first_name,p_last_name:r.name==='Helena Lindström'?'Lindström':r.person.last_name,p_nickname:r.nickname||'',p_email:r.email||'',p_phone:r.phone||'',p_who_is_who:r.presentation||'',p_helmet_color:r.helmet||'',p_jacket_color:r.jacket||'',p_pants_color:r.pants||'',p_allergies:r.allergies||''};
   const {error:profileError}=await supabase.rpc('ldv_admin_update_person',params);
   if(profileError){out.textContent='Stopp efter '+done+' personer. Profilfel för '+r.name+': '+profileError.message;return}
   const {error:participationError}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:r.person.id,p_trip_id:tripId,p_selected:true});
