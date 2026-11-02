@@ -17,15 +17,15 @@ const say=(s,err=false)=>{el('message').textContent=s;el('message').className=er
 let current=null;
 async function load(){
  const {data:{user},error:authError}=await supabase.auth.getUser();
- if(authError||!user){el('login').classList.remove('hidden');el('panel').classList.add('hidden');return}
+ if(authError||!user){el('login').classList.remove('hidden');el('forgot').classList.remove('hidden');el('panel').classList.add('hidden');return}
  const {data:admin,error:adminError}=await supabase.rpc('ldv_is_admin');
  if(adminError||!admin){await supabase.auth.signOut();say('Kontot saknar administratörsbehörighet.',true);el('login').classList.remove('hidden');el('panel').classList.add('hidden');return}
- el('login').classList.add('hidden');el('panel').classList.remove('hidden');el('who').textContent='Inloggad som '+user.email;
+ el('login').classList.add('hidden');el('forgot').classList.add('hidden');el('panel').classList.remove('hidden');el('who').textContent='Inloggad som '+user.email;
  const [{data:status,error:statusError},{data:trips,error:tripsError}]=await Promise.all([supabase.rpc('ldv_access_status'),supabase.rpc('ldv_admin_trips')]);
  if(statusError||tripsError){say('Kunde inte läsa status eller resor. Kontrollera att adminfunktionerna är installerade.',true);return}
  current=status?.[0]??null;el('state').textContent=current?.is_open?'Appen är ÖPPEN':'Appen är LÅST';
  el('trip').replaceChildren(new Option('Välj resa',''),...(trips??[]).map(t=>new Option(t.year+' – '+t.destination,String(t.id))));
- if(current?.active_trip_id)el('trip').value=String(current.active_trip_id);
+ if(current?.active_trip_id)el('trip').value=String(current.active_trip_id);else if((trips??[]).length===1)el('trip').value=String(trips[0].id);
 }
 el('forgot').onclick=async()=>{const email=el('email').value.trim();if(!email){say('Ange din e-postadress först.',true);return}const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:'https://henkob.github.io/ldv/admin.html'});say(error?'Kunde inte skicka återställningsmejl: '+error.message:'Om adressen finns skickas ett mejl med en återställningslänk.',!!error)};
 supabase.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){el('login').classList.add('hidden');el('forgot').classList.add('hidden');el('panel').classList.add('hidden');el('reset').classList.remove('hidden');say('Ange ett nytt lösenord.')}});
