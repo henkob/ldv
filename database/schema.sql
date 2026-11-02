@@ -42,3 +42,12 @@ alter table public.trips enable row level security;
 -- Policys för autentiserade användare och administratörer läggs till
 -- först när autentisering och rollmodell har implementerats.
 -- Service role får aldrig exponeras i frontend.
+
+-- Rumskamrat är knuten till en viss resa, inte personens permanenta profil.
+-- Värdet kan vara null när rumskamrat ännu inte är bestämd.
+alter table public.trip_participation
+ add column if not exists roommate_person_id uuid references public.people(id);
+alter table public.trip_participation
+ add constraint roommate_not_self check (roommate_person_id is null or roommate_person_id <> person_id);
+-- Säkerställ i applikationslogiken att rumskamraten deltar i samma resa.
+-- Låt reseledningen bekräfta rumsfördelningen; deltagarens val är ett önskemål.
