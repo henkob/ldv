@@ -290,9 +290,10 @@ el('csv-import').addEventListener('change',async e=>{
   const names=new Map();
   for(const p of people||[]){const key=normalizeLDVName(p.first_name+' '+p.last_name);names.set(key,[...(names.get(key)||[]),p])}
   const seen=new Set(),problems=[];
-  csvImportRows=rows.map(r=>{const key=normalizeLDVName(r.name),matches=names.get(key)||[];if(seen.has(key))problems.push('Dubblett: '+r.name);seen.add(key);if(matches.length!==1)problems.push('Saknar entydig matchning: '+r.name);return {...r,person:matches.length===1?matches[0]:null}});
+  const duplicateNames=[...names.entries()].filter(([k,v])=>v.length>1).map(([k,v])=>v.map(p=>p.first_name+' '+p.last_name).join(' / ')+' ('+v.length+' poster)');
+  csvImportRows=rows.map(r=>{const key=normalizeLDVName(r.name),matches=names.get(key)||[];if(seen.has(key))problems.push('Dubblett: '+r.name);seen.add(key);if(matches.length!==1){const near=(people||[]).filter(p=>normalizeLDVName(p.last_name)===normalizeLDVName(r.name.split(/\\s+/).slice(-1).join(' '))||normalizeLDVName(p.first_name+' '+p.last_name).includes(key.split(' ')[0])).slice(0,5).map(p=>p.first_name+' '+p.last_name);problems.push((matches.length>1?'Flera registerposter ('+matches.length+'): ':'Saknas som exakt namn: ')+r.name+(near.length?' (möjliga träffar: '+near.join(', ')+')':''))}return {...r,person:matches.length===1?matches[0]:null}});
   const rookie=rows.filter(r=>Number(r.ldv_resor)===0).length;
-  output.textContent=rows.length+' deltagare, '+rookie+' rookies (LDV-resor = 0). '+(problems.length?'Import blockerad: '+problems.join('; '):'Alla namn matchade. Resehistoriken behöver kontrolleras separat.');
+  output.textContent=rows.length+' deltagare, '+rookie+' rookies (LDV-resor = 0). '+(problems.length?'Import blockerad: '+problems.join('; '):'Alla namn matchade. Resehistoriken behöver kontrolleras separat.')+(duplicateNames.length?' Dubblettnamn i hela registret: '+duplicateNames.join('; '):'');
   el('csv-run').disabled=problems.length>0||rows.length!==80||rookie!==24;
  }catch(err){output.textContent='Kunde inte förbereda import: '+err.message}
 });
