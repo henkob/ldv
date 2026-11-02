@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LDV – Administration</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#132653;background:#eaf3ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(150deg,#cbdff8,#f4f7ff)}main{max-width:560px;margin:7vh auto;padding:24px}.card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 14px 45px #142e551c}h1{margin:0 0 6px}p{line-height:1.5}label{display:block;margin:15px 0 6px;font-weight:650}input,button{font:inherit;width:100%;border-radius:12px;padding:13px}input{border:1px solid #bccbe0}button{border:0;background:#173c83;color:#fff;cursor:pointer;margin-top:15px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e6eaf3;color:#17335e}.danger{background:#a02c40}.muted{color:#566782}.status{font-weight:750;padding:12px;border-radius:12px;background:#e9eef8;margin:15px 0}.hidden{display:none}.error{color:#9e2235}.success{color:#14683a}select{width:100%;padding:12px;border-radius:12px;border:1px solid #bccbe0}a{color:#174eaa}small{display:block;margin-top:14px;line-height:1.5}
+</style></head><body><main><div class="card"><h1>LDV administration</h1><p class="muted">Endast reseledningen. Här styr du när deltagarappen är öppen.</p>
+<div id="message" role="status" aria-live="polite"></div>
+<form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
+<div id="panel" class="hidden"><p id="who" class="muted"></p><div id="state" class="status">Läser status …</div><label for="trip">Aktuell resa</label><select id="trip"><option value="">Välj resa</option></select><button id="open" type="button">Öppna appen</button><button id="lock" type="button" class="danger">Lås appen</button><button id="logout" type="button" class="secondary">Logga ut</button><small>Endast administratörer kan ändra status. Appen öppnas aldrig automatiskt. Innan deltagaruppgifter publiceras måste även databasens läsbehörigheter och bildlagringen skyddas.</small></div>
+<p><a href="./index.html">Tillbaka till LDV</a></p></div></main>
+<script type="module">
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+const supabase=createClient('https://hoisvaisfeptkdwmdimg.supabase.co','sb_publishable_pA_qhdlvQ35sIdix1GEWfA_Vn-b5Pzi');
+const el=id=>document.getElementById(id);
+const say=(s,err=false)=>{el('message').textContent=s;el('message').className=err?'error':'success'};
+let current=null;
+async function load(){
+ const {data:{user},error:authError}=await supabase.auth.getUser();
+ if(authError||!user){el('login').classList.remove('hidden');el('panel').classList.add('hidden');return}
+ const {data:admin,error:adminError}=await supabase.rpc('ldv_is_admin');
+ if(adminError||!admin){await supabase.auth.signOut();say('Kontot saknar administratörsbehörighet.',true);el('login').classList.remove('hidden');el('panel').classList.add('hidden');return}
+ el('login').classList.add('hidden');el('panel').classList.remove('hidden');el('who').textContent='Inloggad som '+user.email;
+ const [{data:status,error:statusError},{data:trips,error:tripsError}]=await Promise.all([supabase.rpc('ldv_access_status'),supabase.rpc('ldv_admin_trips')]);
+ if(statusError||tripsError){say('Kunde inte läsa status eller resor. Kontrollera att adminfunktionerna är installerade.',true);return}
+ current=status?.[0]??null;el('state').textContent=current?.is_open?'Appen är ÖPPEN':'Appen är LÅST';
+ el('trip').replaceChildren(new Option('Välj resa',''),...(trips??[]).map(t=>new Option(t.year+' – '+t.destination,String(t.id))));
+ if(current?.active_trip_id)el('trip').value=String(current.active_trip_id);
+}
+el('login').addEventListener('submit',async e=>{e.preventDefault();say('');const {error}=await supabase.auth.signInWithPassword({email:el('email').value,password:el('password').value});if(error){say('Inloggningen misslyckades. Kontrollera e-post och lösenord.',true);return}el('password').value='';await load()});
+async function change(open){
+ const id=Number(el('trip').value);if(open&&!id){say('Välj aktuell resa först.',true);return}
+ if(!confirm(open?'Öppna deltagarappen för vald resa?':'Lås deltagarappen för alla deltagare?'))return;
+ el('open').disabled=el('lock').disabled=true;
+ const {error}=await supabase.rpc('ldv_set_access',{p_is_open:open,p_trip_id:id||null});
+ el('open').disabled=el('lock').disabled=false;
+ if(error){say('Ändringen misslyckades: '+error.message,true);return}
+ say(open?'Appen är öppnad.':'Appen är låst.');await load()
+}
+el('open').onclick=()=>change(true);el('lock').onclick=()=>change(false);
+el('logout').onclick=async()=>{await supabase.auth.signOut();say('Utloggad.');await load()};
+load();
+</script></body></html>
