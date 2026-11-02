@@ -99,3 +99,21 @@ group by p.id;
 -- när en person uteblir ett år.
 -- Alla ändringar av årets deltagarlista kräver adminbehörighet.
 -- En anmälan är inte samma sak som genomförd resa.
+
+-- Manuell applåsning mellan resor.
+-- Låsning styrs enbart av behörig admin, aldrig av kalenderår eller resestatus.
+create table if not exists public.app_access_settings (
+ id boolean primary key default true check (id),
+ is_open boolean not null default false,
+ active_trip_id bigint references public.trips(id),
+ changed_at timestamptz not null default now(),
+ changed_by uuid
+);
+insert into public.app_access_settings(id,is_open)
+values (true,false) on conflict (id) do nothing;
+alter table public.app_access_settings enable row level security;
+-- Inga klientpolicys för ändring. Säker serverfunktion med adminroll
+-- ska kontrollera både låsning och upplåsning och logga vem som gjorde det.
+-- Deltagar-API och privata bildfiler måste kontrollera låst läge på serversidan.
+-- UI-spärr eller dold navigation räcker inte som åtkomstskydd.
+-- Admin ska fortsatt kunna förbereda nästa resa när appen är låst.
