@@ -51,3 +51,11 @@ alter table public.trip_participation
  add constraint roommate_not_self check (roommate_person_id is null or roommate_person_id <> person_id);
 -- Säkerställ i applikationslogiken att rumskamraten deltar i samma resa.
 -- Låt reseledningen bekräfta rumsfördelningen; deltagarens val är ett önskemål.
+
+-- Integritetsregel: roommate_person_id är en privat uppgift.
+-- Exponera aldrig denna kolumn i publika deltagarvyer eller allmänna API-svar.
+-- Endast den berörda deltagaren och behörig reseledning ska få läsa/ändra.
+-- OBS: RLS är radbaserad, inte kolumnbaserad. En generell SELECT-policy
+-- för deltagare på trip_participation skulle även exponera roommate_person_id.
+-- Använd därför separata behörighetskontrollerade vyer/RPC:er eller
+-- en privat tabell med strikt RLS innan någon SELECT-policy aktiveras.
