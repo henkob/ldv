@@ -64,3 +64,27 @@ alter table public.room_assignments enable row level security;
 
 -- Behörigheter för övriga tabeller, bildlagring och administratörer
 -- måste färdigställas och testas innan registret tas i drift.
+
+-- LDV resehistorik: automatiskt per resa.
+-- Kör detta som en separat migration i Supabase SQL Editor på befintlig databas.
+-- Skapa en resa i trips i förväg. Resans slutdatum avgör när den är genomförd.
+alter table public.trips add column if not exists end_date date;
+alter table public.trips add column if not exists trip_status text not null default 'planned';
+-- Tillåt framtida planering utan att automatiskt räkna anmälda som veteraner.
+-- trip_status: planned, ongoing, completed, cancelled
+create or replace view public.ldv_completed_trip_counts
+with (security_invoker = true) as
+select p.id as person_id,
+       count(tp.trip_id) filter (
+         where t.trip_status = 'completed'
+           and t.end_date < current_date
+           and tp.status = 'confirmed'
+       )::integer as completed_trips
+from public.people p
+left join public.trip_participation tp on tp.person_id = p.id
+left join public.trips t on t.id = tp.trip_id
+group by p.id;
+-- OBS: vyn är endast en grund för summering, inte en publik endpoint.
+-- RLS/rollkontroll för både personakter och deltagande måste vara klar först.
+-- Markera genomförd resa som completed efter hemkomst; anmälda som inte
+-- faktiskt reste måste markeras cancelled. Enbart datum räcker inte.
