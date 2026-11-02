@@ -25,7 +25,7 @@ async function load(){
  if(statusError||tripsError){say('Kunde inte läsa status eller resor. Kontrollera att adminfunktionerna är installerade.',true);return}
  current=status?.[0]??null;el('state').textContent=current?.is_open?'Appen är ÖPPEN':'Appen är LÅST';
  el('trip').replaceChildren(new Option('Välj resa',''),...(trips??[]).map(t=>new Option(t.year+' – '+t.destination,String(t.id))));
- const upcoming=(trips??[]).filter(t=>Number(t.year)>=new Date().getFullYear()).sort((a,b)=>Number(a.year)-Number(b.year))[0];if(upcoming)el('trip').value=String(upcoming.id);else if((trips??[]).length)el('trip').value=String([...trips].sort((a,b)=>Number(b.year)-Number(a.year))[0].id);await loadPeople();
+ const today=new Date(),year=today.getFullYear(),targetYear=year+(today.getMonth()>5||(today.getMonth()===5&&today.getDate()>24)?1:0);const upcoming=(trips??[]).filter(t=>Number(t.year)>=targetYear).sort((a,b)=>Number(a.year)-Number(b.year))[0];if(upcoming)el('trip').value=String(upcoming.id);else if((trips??[]).length)el('trip').value=String([...trips].sort((a,b)=>Number(b.year)-Number(a.year))[0].id);await loadPeople();
 }
 function renderPeople(){
  const list=el('people-list'),query=el('person-search').value.trim().toLocaleLowerCase('sv'),filter=el('person-filter').value;
