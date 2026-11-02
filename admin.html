@@ -58,7 +58,7 @@ async function loadPeople(){
  renderPeople();await loadRooms();
 }
 async function loadRooms(){
- const tripId=Number(el('trip').value),list=el('rooms-list');list.replaceChildren();el('rooms-summary').textContent='';roomCache=new Map();el('room-editor').classList.add('hidden');
+ const tripId=Number(el('trip').value),list=el('rooms-list');list.replaceChildren();el('rooms-summary').textContent='';roomCache=new Map();closeRoom();
  if(!tripId)return;
  const {data,error}=await supabase.rpc('ldv_admin_rooms',{p_trip_id:tripId});
  if(tripId!==Number(el('trip').value))return;
