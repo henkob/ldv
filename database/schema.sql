@@ -88,3 +88,14 @@ group by p.id;
 -- RLS/rollkontroll för både personakter och deltagande måste vara klar först.
 -- Markera genomförd resa som completed efter hemkomst; anmälda som inte
 -- faktiskt reste måste markeras cancelled. Enbart datum räcker inte.
+
+-- Administrativt årsbyte:
+-- En ny resa får INTE automatiskt deltagare från föregående resa.
+-- Administratören väljer befintliga people.id och skapar enbart för dem
+-- trip_participation-poster för den nya trips.id.
+-- Helt nya resenärer får först en people-post, sedan trip_participation.
+-- Personakter som inte väljs ligger kvar i people, men ska inte synas
+-- i årets deltagargalleri. Historiska deltaganden får aldrig raderas
+-- när en person uteblir ett år.
+-- Alla ändringar av årets deltagarlista kräver adminbehörighet.
+-- En anmälan är inte samma sak som genomförd resa.
