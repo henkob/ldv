@@ -91,7 +91,12 @@ body:has(#hem:not([hidden])) header{justify-content:space-between}
 @media(max-width:390px){#ldv-header-profile{width:100px;height:100px;flex-basis:100px}}
 #ldv-header-profile:focus-visible{outline:3px solid #f4d34d;outline-offset:3px}
 </style><style>
-/* Bottom-anchored thumb-friendly quick menu */
+<style>
+/* Ensure profile photo fills the circular header avatar edge-to-edge */
+#ldv-header-profile{position:relative;isolation:isolate;overflow:hidden!important;border:0!important;border-radius:50%!important;padding:0!important;background:transparent!important;box-shadow:none!important}
+#ldv-header-profile img:not([hidden]){position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;object-fit:cover!important;object-position:center center!important;border:0!important;border-radius:50%!important;margin:0!important;padding:0!important;max-width:none!important}
+#ldv-header-profile:has(img:not([hidden])) #ldv-header-profile-fallback{display:none!important}
+</style>/* Bottom-anchored thumb-friendly quick menu */
 .nav{display:none!important}
 .ldv-menu-open{position:fixed;right:19px;bottom:calc(20px + env(safe-area-inset-bottom));height:76px;width:76px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:#080d77;color:white;font-size:24px;z-index:38;box-shadow:0 6px 25px #07134b70;display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center}
 .ldv-menu-label{font-size:12px;font-weight:700;letter-spacing:.01em}.ldv-menu-symbol{line-height:1.1}
@@ -128,7 +133,7 @@ html,body{max-width:100%;overflow-x:clip}.ldv-menu-backdrop{touch-action:none}
 <a href="https://www.facebook.com/groups/ldv27" target="_blank" rel="noopener noreferrer"><span class="ldv-menu-emoji">💬</span>Facebookgruppen</a>
 <a href="https://ldvv5.myspreadshop.se/" target="_blank" rel="noopener noreferrer"><span class="ldv-menu-emoji">🛍️</span>LDV-shoppen</a>
 <button data-go="mer"><span class="ldv-menu-emoji">•••</span>Fler länkar och historik</button>
-<button id="ldv-version" type="button" role="menuitem"><span class="ldv-menu-emoji">↻</span><span>Uppdatera appen (v2.51)</span></button>
+<button id="ldv-version" type="button" role="menuitem"><span class="ldv-menu-emoji">↻</span><span>Uppdatera appen (v2.52)</span></button>
 <button id="ldv-menu-signout" type="button" role="menuitem"><span class="ldv-menu-emoji">↪</span>Logga ut</button>
 </div><button id="ldv-menu-close" class="ldv-menu-close" aria-label="Stäng menyn" aria-expanded="false">×</button><script>(async function rotateHeroImage(){
   const hero=document.querySelector('#hem .hero');
