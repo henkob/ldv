@@ -19,8 +19,8 @@
   "background_color": "#eaf5ff",
   "display": "standalone",
   "description": "La Dolce Vita – skidresan till St. Anton 2027",
-  "id": "/ldv/",
-  "start_url": "/ldv/",
-  "scope": "/ldv/",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "lang": "sv"
 }
