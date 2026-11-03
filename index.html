@@ -128,7 +128,7 @@ html,body{max-width:100%;overflow-x:clip}.ldv-menu-backdrop{touch-action:none}
 <a href="https://www.facebook.com/groups/ldv27" target="_blank" rel="noopener noreferrer"><span class="ldv-menu-emoji">💬</span>Facebookgruppen</a>
 <a href="https://ldvv5.myspreadshop.se/" target="_blank" rel="noopener noreferrer"><span class="ldv-menu-emoji">🛍️</span>LDV-shoppen</a>
 <button data-go="mer"><span class="ldv-menu-emoji">•••</span>Fler länkar och historik</button>
-<button id="ldv-version" type="button" role="menuitem"><span class="ldv-menu-emoji">↻</span><span>Uppdatera appen (v2.54)</span></button>
+<button id="ldv-version" type="button" role="menuitem"><span class="ldv-menu-emoji">↻</span><span>Uppdatera appen (v2.55)</span></button>
 <button id="ldv-menu-signout" type="button" role="menuitem"><span class="ldv-menu-emoji">↪</span>Logga ut</button>
 </div><button id="ldv-menu-close" class="ldv-menu-close" aria-label="Stäng menyn" aria-expanded="false">×</button><script>(async function rotateHeroImage(){
   const hero=document.querySelector('#hem .hero');
@@ -166,7 +166,7 @@ const appUrl=new URL('./',location.href).href;
 const spinner=document.getElementById('ldv-gate-spinner');
 function showGateResult(){spinner.hidden=true;spinner.style.display='none';document.getElementById('ldv-gate-panel').style.textAlign='left'}
 
-form.addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('ldv-email').value.trim().toLowerCase();status.textContent='Skickar länk …';const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:appUrl,shouldCreateUser:false}});status.textContent=error?'Kunde inte skicka länken. Kontakta reseledningen om adressen inte är registrerad.':'Om adressen är registrerad får du snart ett mejl med en inloggningslänk.'});
+form.addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('ldv-email').value.trim().toLowerCase();status.textContent='Skickar länk …';const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:appUrl,shouldCreateUser:true}});status.textContent=error?'Kunde inte skicka länken. Kontakta reseledningen om adressen inte är registrerad.':'Om adressen är registrerad får du snart ett mejl med en inloggningslänk.'});
 const menuSignout=document.getElementById('ldv-menu-signout');
 async function doSignout(){menuSignout.disabled=true;menuSignout.textContent='Loggar ut …';const {error}=await c.auth.signOut();if(error){menuSignout.disabled=false;menuSignout.innerHTML='<span class="ldv-menu-emoji">↪</span>Logga ut';alert('Utloggningen misslyckades. Försök igen.');return}location.replace(appUrl)}
 signout.addEventListener('click',doSignout);
