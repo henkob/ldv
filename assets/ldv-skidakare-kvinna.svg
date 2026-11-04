@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 560" role="img" aria-label="Skidåkare"><defs><linearGradient id="j"><stop stop-color="#ff4138"/><stop offset="1" stop-color="#dc151b"/></linearGradient><linearGradient id="g"><stop stop-color="#63d9ff"/><stop offset="1" stop-color="#065cb4"/></linearGradient></defs>
+<g stroke="#17191e" stroke-width="5" fill="none" stroke-linecap="round"><path d="M48 211 34 526 M62 211 55 526"/><path d="M22 508h26 M43 508h25"/></g>
+<g stroke="#15171c" stroke-width="4"><path d="M244 535 269 29q2-24 17-21t15 24l-20 502q-6 17-19 13z" fill="#707782"/><path d="M265 535 291 34q3-25 17-22t14 25l-18 498q-8 16-22 12z" fill="#b0b4bc"/><path d="M259 235h38v22h-38z M255 326h41v25h-41z" fill="#25282f"/></g>
+<g stroke="#15171c" stroke-width="5"><path d="M119 476h49l-2 48q-3 13-17 13h-45q-9-1-9-11l10-35z M192 476h49l12 45q4 16-11 16h-54q-8-2-8-12z" fill="#333640"/><path d="M100 521h67v15H99z M184 521h68v15h-68z" fill="#e6e9ed"/></g>
+<g id="pants" stroke="#15171c" stroke-width="5"><path d="M110 285h136l5 82-9 125q-22 15-51 0l-15-110-12 110q-26 15-55-2l-8-126z" fill="#292b33"/><path d="M110 347q23 11 47 3m37 0q24 10 52-2 M112 409q22 18 44 3m45 2q19 13 40-1" fill="none" stroke="#484b55" stroke-width="7"/></g>
+<path d="M157 125h48v36h-48z" fill="#e8a477" stroke="#15171c" stroke-width="4"/>
+<g id="jacket" stroke="#15171c" stroke-width="5" stroke-linejoin="round"><path d="M137 156q-30 4-42 28L66 247q-9 20-26 18l-9-17q19-8 24-28l25-61q10-19 40-23z" fill="url(#j)"/><path d="M217 153q30 5 40 33l20 59q9 14 21 6l9 17q-27 17-43-10l-24-42z" fill="url(#j)"/><path d="M137 143q43 21 80 0l25 25 7 153q-68 21-144 0l7-152z" fill="url(#j)"/><path d="M177 168v154" stroke="#17191e" fill="none"/><path d="M133 210h18v42h-18z M203 210h18v42h-18z" fill="#34363d"/></g>
+<g fill="#30333b" stroke="#15171c" stroke-width="5"><path d="M32 239q-20-8-24 9q-2 27 21 31q23 1 27-20l-8-16z"/><path d="M285 230q24-10 33 10q5 24-18 35q-19 7-31-14z"/></g>
+<path d="M142 76q-2-42 35-45q39-1 39 45v45q-6 34-39 35q-34-1-36-37z" fill="#ffc18c" stroke="#15171c" stroke-width="5"/>
+<path d="M147 110q-16 25-2 51q-7 20-1 31q20 6 25-14l-5-46z M146 121q-10 9-5 22q3 14 17 17q11 10 2 21q-13 10-20-1q5-9-4-17q-11-14 1-36z" fill="#e7b35a" stroke="#15171c" stroke-width="3"/>
+<path d="M163 131q15 13 29-1" fill="none" stroke="#823f30" stroke-width="3"/>
+<g id="helmet"><path d="M129 88q-8-75 48-79q60 1 53 79l-15 15h-71z" fill="#34363d" stroke="#15171c" stroke-width="5"/><path d="M132 88v29q1 13 15 13h4V91z M224 88v29q-1 13-15 13h-4V91z" fill="#25272d" stroke="#15171c" stroke-width="4"/></g>
+<path d="M137 81q40-16 81 0q10 8 5 28q-4 16-18 17q-11-1-18-11q-8-8-17 1q-9 11-20 9q-17-4-18-24q-2-13 5-20z" fill="url(#g)" stroke="#11151d" stroke-width="7"/><path d="m160 83-17 34m42-38-23 44" stroke="#b5f2ff" stroke-width="8" opacity=".7"/>
+</svg>
