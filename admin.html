@@ -218,14 +218,32 @@ function renderPeople(){
    if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);
    renderPeople();
    let {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});
-   // En rumsplacering kan ha en främmande nyckel till deltagaren. Lossa då
-   // rumskopplingen med den befintliga adminfunktionen och försök igen.
+   // Vid FK-hinder: behåll rumsnamnen och gör kvarvarande rumskamrat ensam.
    if(error&&!wanted&&(error.code==='23503'||/foreign key|room_assignments/i.test(error.message||''))){
-    const {error:roomError}=await supabase.rpc('ldv_admin_set_room',{p_trip_id:tripId,p_person_id:person.id,p_roommate_id:null,p_room_label:''});
-    if(!roomError){
-     const retry=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:false});
-     error=retry.error;
-    }else error=roomError;
+    const {data:rooms,error:roomsError}=await supabase.rpc('ldv_admin_rooms',{p_trip_id:tripId});
+    if(roomsError){error=roomsError;}
+    else{
+     const affected=(rooms||[]).filter(room=>room.person_id===person.id||room.roommate_person_id===person.id);
+     let roomError=null;
+     // Lossa först kvarvarande rumskamraters referenser till personen.
+     for(const room of affected.filter(room=>room.person_id!==person.id)){
+      const result=await supabase.rpc('ldv_admin_set_room',{p_trip_id:tripId,p_person_id:room.person_id,p_roommate_id:null,p_room_label:room.room_label||''});
+      if(result.error){roomError=result.error;break;}
+     }
+     if(!roomError){
+      const own=affected.find(room=>room.person_id===person.id);
+      if(own){
+       const result=await supabase.rpc('ldv_admin_set_room',{p_trip_id:tripId,p_person_id:person.id,p_roommate_id:null,p_room_label:own.room_label||''});
+       roomError=result.error;
+      }
+     }
+     if(roomError)error=roomError;
+     else{
+      const retry=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:false});
+      error=retry.error;
+     }
+     await loadRooms();
+    }
    }
    if(tripId!==Number(el('trip').value))return;
    if(error){
