@@ -212,7 +212,7 @@ function renderPeople(){
   const cb=document.createElement('input');cb.type='checkbox';cb.checked=selectedCache.has(person.id);
   const avatar=document.createElement('img');avatar.className='avatar avatar-small';avatar.alt='';avatar.src=avatarFallback(person);loadAvatar(person.id,avatar);const name=document.createElement('span');name.textContent=person.first_name+' '+person.last_name+(tripCounts.get(person.id)===0?' 🐣':'');
   const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.textContent='Visa';view.setAttribute('aria-label','Visa '+person.first_name+' '+person.last_name);view.onclick=()=>viewPerson(person.id);label.append(cb,avatar,name,view);list.append(label);
-  cb.onchange=async()=>{const wanted=cb.checked;cb.disabled=true;const {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:Number(el('trip').value),p_selected:wanted});if(error){cb.checked=!wanted;say('Kunde inte ändra deltagandet: '+error.message,true)}else{if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);say('Deltagarlistan uppdaterad.');renderPeople()}cb.disabled=false};
+  cb.onchange=async()=>{const wanted=cb.checked,tripId=Number(el('trip').value);cb.disabled=true;if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);renderPeople();const {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});if(tripId!==Number(el('trip').value))return;if(error){if(wanted)selectedCache.delete(person.id);else selectedCache.add(person.id);renderPeople();say('Kunde inte ändra deltagandet: '+error.message,true)}else{say('Deltagarlistan uppdaterad.')}};
  }
 }
 async function loadPeople(){
