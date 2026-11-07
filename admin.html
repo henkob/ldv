@@ -82,7 +82,19 @@ main>.card{padding:16px 18px!important;border-radius:12px!important;box-shadow:n
 .ldv-admin-menu-sheet a,.ldv-admin-menu-sheet button{display:block;width:100%;min-height:51px;padding:11px 14px;text-align:left;border:0;border-bottom:1px solid rgba(255,255,255,.17);background:transparent;color:white;text-decoration:none;font-size:15px;font-weight:500}
 .ldv-admin-menu-sheet :last-child{border-bottom:0}
 .ldv-admin-menu-open:focus-visible,.ldv-admin-menu-sheet :focus-visible{outline:3px solid #f4d34d;outline-offset:3px}
-</style><style>#ldv-export-csv{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important}#ldv-export-csv .ldv-download-icon{flex:none;vertical-align:middle}</style></head><body><main><div class="card">
+</style><style>#ldv-export-csv{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important}#ldv-export-csv .ldv-download-icon{flex:none;vertical-align:middle}</style><style>
+/* Kompakt deltagarvy med utfallande profilbild */
+#view-overlay .compact-view{padding:0!important;overflow:hidden!important;display:flex;flex-direction:column;max-height:min(90dvh,900px);width:min(96vw,540px)}
+#view-overlay #view-avatar{order:0;margin:0!important;width:100%;height:clamp(190px,32vh,310px);background:#dce7f6;overflow:hidden}
+#view-overlay .ldv-view-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 32%;border-radius:0}
+#view-overlay #view-title{order:1;margin:18px 22px 12px!important;padding-right:40px;font-size:clamp(1.25rem,5vw,1.7rem);line-height:1.25;overflow-wrap:anywhere}
+#view-overlay #view-content{order:2;margin:0 22px 18px;overflow:auto}
+#view-overlay #view-content dl{margin:0;display:grid;grid-template-columns:minmax(75px,105px) minmax(0,1fr);gap:12px 16px}
+#view-overlay #view-content dd{overflow-wrap:anywhere}
+#view-overlay .profile-actions{order:3;margin:0!important;padding:12px 22px 22px;display:flex;gap:10px}
+#view-overlay .profile-actions button{flex:1;min-width:0}
+#view-overlay #view-close{z-index:3;top:12px;right:12px;position:absolute}
+</style></head><body><main><div class="card">
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
 <button id="forgot" type="button" class="secondary">Glömt lösenord?</button>
@@ -350,19 +362,22 @@ async function viewPerson(id){
  const request=++viewRequest;viewPersonId=id;
  el('view-overlay').classList.remove('hidden');document.body.classList.add('profile-modal-open');
  el('view-title').textContent='Läser person …';el('view-content').textContent='Hämtar uppgifter …';
- const [{data,error},{data:history, error:historyError}]=await Promise.all([
- supabase.rpc('ldv_admin_person_profile',{p_person_id:id}),
- supabase.rpc('ldv_admin_person_history',{p_person_id:id})
- ]);
+ const {data,error}=await supabase.rpc('ldv_admin_person_profile',{p_person_id:id});
  if(request!==viewRequest)return;
  if(error||!data?.[0]){el('view-title').textContent='Kunde inte visa person';el('view-content').textContent=error?.message??'Personen hittades inte.';return}
- const p=data[0];el('view-title').textContent=p.first_name+' '+p.last_name;const photo=document.createElement('img');photo.className='avatar avatar-large';photo.alt='Profilbild för '+p.first_name;photo.src=avatarFallback(p);el('view-avatar').replaceChildren(photo);loadAvatar(id,photo);
+ const p=data[0];
+ const rookie=tripCounts.get(id)===0;
+ const nickname=String(p.nickname||'').trim();
+ el('view-title').textContent=p.first_name+(nickname?' ”'+nickname+'”':'')+' '+p.last_name+(rookie?' 🐣':'');
+ const photo=document.createElement('img');photo.className='ldv-view-photo';photo.alt='Profilbild för '+p.first_name;photo.src=avatarFallback(p);
+ el('view-avatar').replaceChildren(photo);loadAvatar(id,photo);
  const dl=document.createElement('dl');
  const add=(label,value)=>{const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=String(value??'').trim()||'–';dl.append(dt,dd)};
- add('Smeknamn',p.nickname);const {data:gender}=await supabase.rpc('ldv_admin_person_gender',{p_person_id:p.id});add('Kön',gender||'Ej angivet');add('E-post',p.email);add('Telefon',p.phone);
- add('Färg på din hjälm',p.helmet_color);add('Färg på din jacka',p.jacket_color);add('Färg på dina byxor',p.pants_color);
- add('Vem är du?',p.who_is_who);
- add('Tidigare resor',historyError?'Kunde inte läsa historik':(history??[]).filter(t=>t.participated).map(t=>t.year+' '+t.destination+destinationFlag(t.destination)).join(', ')||'Inga registrerade');
+ const {data:gender}=await supabase.rpc('ldv_admin_person_gender',{p_person_id:p.id});
+ if(request!==viewRequest)return;
+ const g=String(gender||'').toLocaleLowerCase('sv');
+ add('Kön',g==='kvinna'?'👩 Kvinna':g==='man'?'👨 Man':gender||'Ej angivet');
+ add('E-post',p.email);add('Telefon',p.phone);
  el('view-content').replaceChildren(dl);el('view-close').focus();
 }
 async function openProfile(id){
