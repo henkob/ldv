@@ -368,7 +368,7 @@ async function viewPerson(id){
  const p=data[0];
  const rookie=tripCounts.get(id)===0;
  const nickname=String(p.nickname||'').trim();
- el('view-title').textContent=p.first_name+(nickname?' ”'+nickname+'”':'')+' '+p.last_name+(rookie?' 🐣':'');
+ el('view-title').textContent=p.first_name+(nickname?' ”'+nickname+'”':'')+' '+p.last_name;
  const photo=document.createElement('img');photo.className='ldv-view-photo';photo.alt='Profilbild för '+p.first_name;photo.src=avatarFallback(p);
  el('view-avatar').replaceChildren(photo);loadAvatar(id,photo);
  const dl=document.createElement('dl');
@@ -376,7 +376,7 @@ async function viewPerson(id){
  const {data:gender}=await supabase.rpc('ldv_admin_person_gender',{p_person_id:p.id});
  if(request!==viewRequest)return;
  const g=String(gender||'').toLocaleLowerCase('sv');
- add('Kön',g==='kvinna'?'👩 Kvinna':g==='man'?'👨 Man':gender||'Ej angivet');
+ el('view-title').textContent+=(g==='kvinna'?' 👩':g==='man'?' 👨':'')+(rookie?' 🐣':'');
  add('E-post',p.email);add('Telefon',p.phone);
  el('view-content').replaceChildren(dl);el('view-close').focus();
 }
