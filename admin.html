@@ -212,7 +212,31 @@ function renderPeople(){
   const cb=document.createElement('input');cb.type='checkbox';cb.checked=selectedCache.has(person.id);
   const avatar=document.createElement('img');avatar.className='avatar avatar-small';avatar.alt='';avatar.src=avatarFallback(person);loadAvatar(person.id,avatar);const name=document.createElement('span');name.textContent=person.first_name+' '+person.last_name+(tripCounts.get(person.id)===0?' 🐣':'');
   const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.textContent='Visa';view.setAttribute('aria-label','Visa '+person.first_name+' '+person.last_name);view.onclick=()=>viewPerson(person.id);label.append(cb,avatar,name,view);list.append(label);
-  cb.onchange=async()=>{const wanted=cb.checked,tripId=Number(el('trip').value);cb.disabled=true;if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);renderPeople();const {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});if(tripId!==Number(el('trip').value))return;if(error){if(wanted)selectedCache.delete(person.id);else selectedCache.add(person.id);renderPeople();say('Kunde inte ändra deltagandet: '+error.message,true)}else{say('Deltagarlistan uppdaterad.')}};
+  cb.onchange=async()=>{
+   const wanted=cb.checked,tripId=Number(el('trip').value);
+   cb.disabled=true;
+   if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);
+   renderPeople();
+   let {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});
+   // En rumsplacering kan ha en främmande nyckel till deltagaren. Lossa då
+   // rumskopplingen med den befintliga adminfunktionen och försök igen.
+   if(error&&!wanted&&(error.code==='23503'||/foreign key|room_assignments/i.test(error.message||''))){
+    const {error:roomError}=await supabase.rpc('ldv_admin_set_room',{p_trip_id:tripId,p_person_id:person.id,p_roommate_id:null,p_room_label:''});
+    if(!roomError){
+     const retry=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:false});
+     error=retry.error;
+    }else error=roomError;
+   }
+   if(tripId!==Number(el('trip').value))return;
+   if(error){
+    if(wanted)selectedCache.delete(person.id);else selectedCache.add(person.id);
+    renderPeople();
+    say('Kunde inte ändra deltagandet: '+error.message,true);
+   }else{
+    say('Deltagarlistan uppdaterad.');
+    if(!wanted)loadRooms();
+   }
+  };
  }
 }
 async function loadPeople(){
