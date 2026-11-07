@@ -169,7 +169,7 @@ function renderPeople(){
  const rookies=selectedCounts.filter(n=>n===0).length;
  const genders=[...selectedCache].map(id=>genderCache.get(id));
  const women=genders.filter(g=>g==='kvinna').length,men=genders.filter(g=>g==='man').length,unknown=genders.filter(g=>g!=='kvinna'&&g!=='man').length;
- el('people-count').textContent='Deltagare: '+selectedCache.size+' (tot. '+peopleCache.length+') · 🐣 '+rookies+' · 👩 '+women+' · 👨 '+men+(unknown?' · ❓ '+unknown:'');
+ el('people-count').replaceChildren(document.createTextNode('Deltagare: '),Object.assign(document.createElement('strong'),{textContent:String(selectedCache.size)}),document.createTextNode(' (tot. '+peopleCache.length+') · 🐣 '+rookies+' · 👩 '+women+' · 👨 '+men+(unknown?' · ❓ '+unknown:'')));
  if(!filtered.length){list.textContent='Inga personer matchar filtret.';return}
  for(const person of filtered){
   const label=document.createElement('label');label.className='person-row';
