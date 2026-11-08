@@ -440,7 +440,7 @@ window.addEventListener('error',e=>{if(!document.getElementById('ldv-gate'))retu
 window.addEventListener('unhandledrejection',e=>{if(!document.getElementById('ldv-gate'))return;document.getElementById('gate-title').textContent='Ett fel hindrar appen från att starta';gateDiagnostics('Tekniskt fel',String(e.reason?.message||e.reason||'Okänt fel'));});
 const c=createClient('https://wtrrdxurgxyvfahhgbsh.supabase.co','sb_publishable_t1aodVfT9LFzjmaACGhyKw_y_YXEq5c',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const form=document.getElementById('ldv-email-form'),status=document.getElementById('ldv-login-msg'),signout=document.getElementById('ldv-signout');
-const appUrl=new URL('./',location.href).href;
+const appUrl=new URL('/test.html',location.origin).href;
 const spinner=document.getElementById('ldv-gate-spinner');
 function showGateResult(){spinner.hidden=true;spinner.style.display='none';document.getElementById('ldv-gate-panel').style.textAlign='left'}
 
