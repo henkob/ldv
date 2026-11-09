@@ -8,3 +8,5 @@ Första publika testversionen av webbappen för La Dolce Vita, Sankt Anton 2027.
 - Original-SVG-logotypen ska föras in i nästa steg
 
 Denna version är en förenklad testversion. Den tidigare ZIP-prototypen är inte fullständigt överförd.
+
+<!-- Starta en ny GitHub Pages-publicering efter timeout för v3.29. -->
