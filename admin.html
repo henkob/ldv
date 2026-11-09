@@ -109,7 +109,7 @@ main>.card{padding:16px 18px!important;border-radius:12px!important;box-shadow:n
 #profile-panel .ldv-avatar-file-row #avatar-file::file-selector-button{font-size:1rem;font-weight:700;padding:12px 16px;margin-right:10px;border-radius:10px;border:1px solid #c4d0e0;background:#e4e9f3;color:#172e58;cursor:pointer}
 #profile-panel .ldv-avatar-file-row #avatar-remove{flex:0 0 auto;width:auto!important;margin:0!important;white-space:nowrap;padding:12px 10px}
 @media(max-width:520px){#profile-panel .ldv-avatar-file-row{gap:6px}#profile-panel .ldv-avatar-file-row #avatar-file{font-size:.8rem}#profile-panel .ldv-avatar-file-row #avatar-file::file-selector-button{padding:12px 10px;margin-right:5px;font-size:.92rem}#profile-panel .ldv-avatar-file-row #avatar-remove{padding:12px 7px;font-size:.8rem}}
-</style><style>/* Admin authentication only: LDV cinematic glass design v3.25 */
+</style><style>/* Admin authentication only: LDV cinematic glass design v3.26 */
 body.ldv-admin-auth{background:#16477e url('./Appbilder/offpist.webp') center 62% / cover no-repeat fixed!important;min-height:100dvh}
 body.ldv-admin-auth main{min-height:100dvh;max-width:none!important;margin:0!important;padding:clamp(115px,22vh,230px) 18px 50px!important;display:flex;justify-content:center;align-items:flex-start}
 body.ldv-admin-auth main>.card{position:relative;width:min(100%,440px);margin:0 auto!important;padding:116px 22px 26px!important;text-align:center;border:1.5px solid rgba(255,255,255,.8);border-radius:28px;background:rgba(233,245,255,.29);-webkit-backdrop-filter:blur(9px) saturate(125%);backdrop-filter:blur(9px) saturate(125%);box-shadow:0 16px 45px #071e4840}
@@ -124,8 +124,14 @@ body.ldv-admin-auth main>.card>p:last-child{margin:17px 0 0}
 body.ldv-admin-auth #ldv-admin-menu-open{display:none!important}
 body.ldv-admin-auth #message:empty{display:none}
 body.ldv-admin-auth #forgot{margin-top:10px}
+body.ldv-admin-auth #panel{display:none!important}
+body.ldv-admin-auth main>.card>p:last-child{display:block}
+body:not(.ldv-admin-auth) #ldv-admin-auth-logo,body:not(.ldv-admin-auth) #ldv-admin-auth-heading,body:not(.ldv-admin-auth) #ldv-admin-auth-version{display:none!important}
+body:not(.ldv-admin-auth) main>.card{background:#fff}
+body.ldv-admin-auth #ldv-admin-auth-logo{max-width:235px!important;max-height:235px!important;display:block!important}
+body.ldv-admin-auth #ldv-admin-auth-heading{display:block!important}
 @media(prefers-reduced-transparency:reduce){body.ldv-admin-auth main>.card{background:rgba(255,255,255,.94);-webkit-backdrop-filter:none;backdrop-filter:none}}
-</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.25</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV-Logotype-St.Anton2027-4color.svg" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Logga in till administrationen</strong>
+</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.26</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV-Logotype-St.Anton2027-4color.svg" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Logga in till administrationen</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">Logga in</button></form>
 <button id="forgot" type="button" class="secondary">Glömt lösenord?</button>
@@ -173,6 +179,7 @@ const say=(s,err=false)=>{el('message').textContent=s;el('message').className=er
 let current=null;let peopleCache=[];let selectedCache=new Set();let tripCounts=new Map();let genderCache=new Map();let genderLoadToken=0;let historyRequest=0;let roomCache=new Map();
 async function load(){
  document.body.classList.add('ldv-admin-auth');
+ el('panel').classList.add('hidden');
  const {data:{user},error:authError}=await supabase.auth.getUser();
  if(authError||!user){el('login').classList.remove('hidden');el('forgot').classList.remove('hidden');el('panel').classList.add('hidden');return}
  const {data:admin,error:adminError}=await supabase.rpc('ldv_is_admin');
