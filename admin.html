@@ -141,7 +141,7 @@ body.ldv-admin-auth #ldv-admin-auth-heading{display:block!important}
 #ldv-admin-auth-links a,#ldv-admin-auth-links #forgot{font:inherit;font-size:14px;font-weight:500;color:#16477e;text-decoration:underline;text-underline-offset:3px;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;margin:0!important;width:auto!important;min-width:0;line-height:1.5;cursor:pointer}
 #ldv-admin-auth-links #forgot{text-align:right;white-space:nowrap}
 body:not(.ldv-admin-auth) #ldv-admin-auth-links{display:none!important}
-</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.34</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV-Logotype-St.Anton2027-4color.svg" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
+</style><style>#view-overlay .ldv-view-photo{object-fit:contain!important;background:#dce7f6}</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.35</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV-Logotype-St.Anton2027-4color.svg" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" placeholder="Ange din e-postadress här" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" placeholder="Ange ditt lösenord här" required><button type="submit">Logga in</button></form>
 
@@ -430,7 +430,7 @@ async function viewPerson(id){
  const nickname=String(p.nickname||'').trim();
  el('view-title').textContent=p.first_name+(nickname?' ”'+nickname+'”':'')+' '+p.last_name;
  const photo=document.createElement('img');photo.className='ldv-view-photo';photo.alt='Profilbild för '+p.first_name;photo.src=avatarFallback(p);
- el('view-avatar').replaceChildren(photo);loadAvatar(id,photo);
+ el('view-avatar').replaceChildren(photo);(async()=>{const storage=supabase.storage.from('ldv-avatars');let result=await storage.createSignedUrl(id+'/avatar-full',3600);if(result.error||!result.data?.signedUrl)result=await storage.createSignedUrl(id+'/avatar',3600);if(!result.error&&result.data?.signedUrl&&photo.isConnected)photo.src=result.data.signedUrl})();
  const dl=document.createElement('dl');
  const add=(label,value)=>{const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=String(value??'').trim()||'–';dl.append(dt,dd)};
  const {data:gender}=await supabase.rpc('ldv_admin_person_gender',{p_person_id:p.id});
