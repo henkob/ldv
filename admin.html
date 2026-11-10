@@ -144,7 +144,7 @@ body:not(.ldv-admin-auth) #ldv-admin-auth-links{display:none!important}
 </style><style>#view-overlay .ldv-view-photo{object-fit:contain!important;background:#dce7f6}
 /* v3.39: no shadow on admin logo */
 #ldv-admin-auth-logo{filter:none!important;box-shadow:none!important;text-shadow:none!important}
-</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.47</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
+</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.48</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" placeholder="Ange din e-postadress här" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" placeholder="Ange ditt lösenord här" required><button type="submit">Logga in</button></form>
 
@@ -284,9 +284,11 @@ function renderPeople(){
   const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.textContent='Visa';view.setAttribute('aria-label','Visa '+person.first_name+' '+person.last_name);view.onclick=()=>viewPerson(person.id);label.append(cb,avatar,name,view);list.append(label);
   cb.onchange=async()=>{
    const wanted=cb.checked,tripId=Number(el('trip').value);
+   cb.checked=!wanted;
+   const fullName=person.first_name+' '+person.last_name;
+   const tripName=el('trip').selectedOptions[0]?.textContent||'den valda resan';
+   if(!confirm(wanted?'Vill du lägga till '+fullName+' på '+tripName+'?':'Vill du ta bort '+fullName+' från '+tripName+'? Personen finns kvar i deltagarregistret.'))return;
    cb.disabled=true;
-   if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);
-   renderPeople();
    let {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});
    // Vid FK-hinder: behåll rumsnamnen och gör kvarvarande rumskamrat ensam.
    if(error&&!wanted&&(error.code==='23503'||/foreign key|room_assignments/i.test(error.message||''))){
@@ -316,13 +318,23 @@ function renderPeople(){
     }
    }
    if(tripId!==Number(el('trip').value))return;
+   if(!error){
+    const check=await supabase.rpc('ldv_admin_participants',{p_trip_id:tripId});
+    if(check.error)error=check.error;
+    else {
+     const stillSelected=(check.data||[]).some(p=>p.person_id===person.id&&p.status!=='cancelled');
+     if(stillSelected!==wanted)error={message:'Ändringen sparades inte i deltagarlistan. Kontrollera databasfunktionen ldv_admin_set_participation.'};
+    }
+   }
    if(error){
-    if(wanted)selectedCache.delete(person.id);else selectedCache.add(person.id);
-    renderPeople();
+    cb.disabled=false;
     say('Kunde inte ändra deltagandet: '+error.message,true);
    }else{
-    say('Deltagarlistan uppdaterad.');
-    if(!wanted)loadRooms();
+    if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);
+    cb.checked=wanted;cb.disabled=false;
+    say(wanted?fullName+' har lagts till på resan.':fullName+' har tagits bort från resan.');
+    await loadPeople();
+    if(!wanted)await loadRooms();
    }
   };
  }
