@@ -144,7 +144,17 @@ body:not(.ldv-admin-auth) #ldv-admin-auth-links{display:none!important}
 </style><style>#view-overlay .ldv-view-photo{object-fit:contain!important;background:#dce7f6}
 /* v3.39: no shadow on admin logo */
 #ldv-admin-auth-logo{filter:none!important;box-shadow:none!important;text-shadow:none!important}
-</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.48</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Lora:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet"><style id="ldv-global-typography-v349">
+/* LDV 3.49: shared typography across app, login and administration */
+:root{--ldv-font-display:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;--ldv-font-ui:'Oswald','Arial Narrow',sans-serif;--ldv-font-body:'Lora',Georgia,serif}
+html,body{font-family:var(--ldv-font-body)!important}
+body,main,section,article,dialog,details,summary,p,li,td,th,dd,dt,label,input,textarea,select,option{font-family:var(--ldv-font-body)!important}
+button{font-family:var(--ldv-font-ui)!important}
+h1,h2,#hem h1,#hem h2{font-family:var(--ldv-font-display)!important;font-weight:800!important;letter-spacing:.005em!important;line-height:1.08!important}
+h3,h4,h5,h6,.tag,legend,thead th{font-family:var(--ldv-font-ui)!important;font-weight:600!important}
+#ldv-gate,#ldv-gate-panel,#ldv-gate-panel p,#ldv-gate-panel label{font-family:var(--ldv-font-body)!important}
+#ldv-gate button,#ldv-gate-settings{font-family:var(--ldv-font-ui)!important}
+</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.49</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" placeholder="Ange din e-postadress här" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" placeholder="Ange ditt lösenord här" required><button type="submit">Logga in</button></form>
 
