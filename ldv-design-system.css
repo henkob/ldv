@@ -1,0 +1,42 @@
+/* LDV design system v3.50: one shared typography and control baseline.
+   Headings = Barlow Condensed (sans serif), body = Lora (serif). */
+:root{
+ --ldv-font-heading:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+ --ldv-font-body:'Lora',Georgia,serif;
+ --ldv-type-h1:clamp(36px,7vw,44px);
+ --ldv-type-h2:clamp(30px,5.5vw,36px);
+ --ldv-type-h3:clamp(24px,4.5vw,28px);
+ --ldv-type-h4:clamp(20px,3.8vw,23px);
+ --ldv-type-body:16px;
+ --ldv-button-radius:12px;
+}
+html,body,main,section,article,aside,dialog,details,summary,
+p,li,dl,dt,dd,td,th,label,input,textarea,select,option,
+.card,.muted,.feature-note,.participant-card,.participant-detail,
+#ldv-gate,#ldv-gate-panel{
+ font-family:var(--ldv-font-body)!important;
+}
+body{font-size:var(--ldv-type-body);line-height:1.55}
+h1,h2,h3,h4,.card h1,.card h2,.card h3,.card h4,
+#hem h1,#hem h2,#hem h3,#hem h4{
+ font-family:var(--ldv-font-heading)!important;
+ letter-spacing:.005em!important;
+ line-height:1.12!important;
+}
+h1,#hem h1{font-size:var(--ldv-type-h1)!important;font-weight:800!important}
+h2,#hem h2{font-size:var(--ldv-type-h2)!important;font-weight:800!important}
+h3,#hem h3{font-size:var(--ldv-type-h3)!important;font-weight:700!important}
+h4,#hem h4{font-size:var(--ldv-type-h4)!important;font-weight:700!important}
+/* Controls use one heading-family style, while preserving existing button colors and actions. */
+button,input[type=button],input[type=submit],input[type=reset],
+.btn,[role=button],.tag,legend{
+ font-family:var(--ldv-font-heading)!important;
+ font-weight:700;
+}
+button,input[type=button],input[type=submit],input[type=reset],.btn{
+ border-radius:var(--ldv-button-radius);
+ line-height:1.2;
+}
+button:disabled,.btn:disabled{cursor:not-allowed;opacity:.6}
+input:not([type=button]):not([type=submit]):not([type=reset]),
+textarea,select{font-family:var(--ldv-font-body)!important}
