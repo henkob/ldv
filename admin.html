@@ -858,4 +858,10 @@ el('csv-run').addEventListener('click',async()=>{
  await loadPeople();
 });
 load();
-</script><script src="./ldv-buttons.js?v=372"></script><script src="./ldv-pull-refresh.js?v=372"></script></body></html>
+</script><script src="./ldv-buttons.js?v=372"></script><script src="./ldv-pull-refresh.js?v=372"></script><style>
+/* LDV admin: content-sized, left-aligned floating menu */
+#ldv-admin-menu-sheet:not([hidden]){width:max-content!important;max-width:calc(100vw - 24px)!important;min-width:0!important;align-items:stretch!important}
+#ldv-admin-menu-sheet a,#ldv-admin-menu-sheet button{justify-content:flex-start!important;text-align:left!important;white-space:nowrap!important}
+#ldv-admin-menu-sheet a span,#ldv-admin-menu-sheet button span{text-align:left!important}
+</style>
+</body></html>
