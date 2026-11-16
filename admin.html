@@ -144,7 +144,7 @@ body:not(.ldv-admin-auth) #ldv-admin-auth-links{display:none!important}
 </style><style>#view-overlay .ldv-view-photo{object-fit:contain!important;background:#dce7f6}
 /* v3.39: no shadow on admin logo */
 #ldv-admin-auth-logo{filter:none!important;box-shadow:none!important;text-shadow:none!important}
-</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="./ldv-design-system.css?v=353"></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.53</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="./ldv-design-system.css?v=354"></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.54</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" placeholder="Ange din e-postadress här" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" placeholder="Ange ditt lösenord här" required><button type="submit">Logga in</button></form>
 
@@ -265,7 +265,7 @@ async function changeTripParticipation(person,wanted){
    const fullName=person.first_name+' '+person.last_name;
    const tripName=el('trip').selectedOptions[0]?.textContent||'den valda resan';
    if(!confirm(wanted?'Vill du lägga till '+fullName+' på '+tripName+'?':'Vill du ta bort '+fullName+' från '+tripName+'? Personen finns kvar i deltagarregistret.'))return false;
-   const feedback=el('profile-trip-feedback');feedback.textContent='Sparar ändringen …';
+   const feedback=el('profile-trip-feedback');feedback.textContent='Sparar ändringen …';say('Sparar deltagarstatus för '+fullName+' …');
    let {error}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:person.id,p_trip_id:tripId,p_selected:wanted});
    // Vid FK-hinder: behåll rumsnamnen och gör kvarvarande rumskamrat ensam.
    if(error&&!wanted&&(error.code==='23503'||/foreign key|room_assignments/i.test(error.message||''))){
@@ -336,7 +336,18 @@ function renderPeople(){
  if(!filtered.length){list.textContent='Inga personer matchar filtret.';return}
  for(const person of filtered){
   const label=document.createElement('label');label.className='person-row';
-  const cb=document.createElement('span');cb.className='participation-indicator';cb.textContent=selectedCache.has(person.id)?'✓':'○';cb.setAttribute('aria-label',selectedCache.has(person.id)?'Deltar i vald resa':'Deltar inte i vald resa');cb.title='Deltagandet ändras under Redigera person';
+  const cb=document.createElement('input');cb.type='checkbox';cb.checked=selectedCache.has(person.id);cb.setAttribute('aria-label','Deltar i vald resa: '+person.first_name+' '+person.last_name);
+  cb.onchange=async()=>{
+   const wanted=cb.checked;
+   cb.disabled=true;
+   try{
+    const success=await changeTripParticipation(person,wanted);
+    if(!success){cb.checked=!wanted;cb.disabled=false}
+   }catch(error){
+    cb.checked=!wanted;cb.disabled=false;
+    say('Kunde inte ändra deltagandet: '+error.message,true);
+   }
+  };
   const avatar=document.createElement('img');avatar.className='avatar avatar-small';avatar.alt='';avatar.src=avatarFallback(person);loadAvatar(person.id,avatar);const name=document.createElement('span');name.textContent=person.first_name+' '+person.last_name+(tripCounts.get(person.id)===0?' 🐣':'');
   const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.textContent='Visa';view.setAttribute('aria-label','Visa '+person.first_name+' '+person.last_name);view.onclick=()=>viewPerson(person.id);label.append(cb,avatar,name,view);list.append(label);
 
