@@ -16,7 +16,7 @@ const paths={
 };
 const admin=/admin\.html(?:$|[?#])/.test(location.pathname);
 function excluded(b){
- if(b.closest('.nav,.quick-grid,.ldv-admin-tabs,[role="tablist"],.section-head,.header-home,.refresh-button,.participant-dialog-top,.profile-close,.ldv-admin-auth-links,.ldv-admin-menu-open,.ldv-menu-open'))return true;
+ if(b.closest('.nav,.quick-grid,.ldv-admin-tabs,[role="tablist"],.section-head,.header-home,.refresh-button,.participant-dialog-top,.profile-close,.ldv-admin-auth-links,.ldv-admin-menu-open,.ldv-admin-menu-sheet,.ldv-menu-open'))return true;
  if(b.matches('[role="tab"],[aria-label="Stäng"],[aria-label="Öppna Min profil"],[aria-label="Uppdatera appen"],.profile-close,.header-home,.refresh-button'))return true;
  if(b.id==='ldv-header-profile'||b.id==='ldv-logo-refresh'||b.classList.contains('nav'))return true;
  const t=(b.textContent||'').trim();
