@@ -144,7 +144,7 @@ body:not(.ldv-admin-auth) #ldv-admin-auth-links{display:none!important}
 </style><style>#view-overlay .ldv-view-photo{object-fit:contain!important;background:#dce7f6}
 /* v3.39: no shadow on admin logo */
 #ldv-admin-auth-logo{filter:none!important;box-shadow:none!important;text-shadow:none!important}
-</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="./ldv-design-system.css?v=350"></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.50</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="./ldv-design-system.css?v=351"></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.51</span><main><div class="card"><img id="ldv-admin-auth-logo" src="./Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" role="button" tabindex="0" title="Uppdatera appen och rensa cache"><strong id="ldv-admin-auth-heading">Admin</strong>
 <div id="message" role="status" aria-live="polite"></div>
 <form id="login"><label for="email">E-post</label><input id="email" type="email" autocomplete="username" placeholder="Ange din e-postadress här" required><label for="password">Lösenord</label><input id="password" type="password" autocomplete="current-password" placeholder="Ange ditt lösenord här" required><button type="submit">Logga in</button></form>
 
@@ -192,6 +192,7 @@ async function refreshAdminCache(){if(window.__ldvAdminRefreshing)return;window.
 const authLogo=document.getElementById('ldv-admin-auth-logo');authLogo.addEventListener('click',refreshAdminCache);authLogo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();refreshAdminCache()}});
 
 const say=(s,err=false)=>{el('message').textContent=s;el('message').className=err?'error':'success'};
+const ldvIsActiveParticipation=p=>!['cancelled','canceled','excluded','inactive','removed','withdrawn'].includes(String(p?.status||'').trim().toLowerCase());
 let current=null;let peopleCache=[];let selectedCache=new Set();let tripCounts=new Map();let genderCache=new Map();let genderLoadToken=0;let historyRequest=0;let roomCache=new Map();
 async function load(){
  document.body.classList.add('ldv-admin-auth');
@@ -232,8 +233,8 @@ el('copy-preview').addEventListener('click',async()=>{
  try{
   const [a,b]=await Promise.all([supabase.rpc('ldv_admin_participants',{p_trip_id:source}),supabase.rpc('ldv_admin_participants',{p_trip_id:target})]);
   if(a.error||b.error)throw Error(a.error?.message||b.error?.message);
-  const people=[...new Set((a.data||[]).filter(p=>p.status!=='cancelled').map(p=>p.person_id).filter(Boolean))];
-  const existing=(b.data||[]).filter(p=>p.status!=='cancelled');
+  const people=[...new Set((a.data||[]).filter(p=>ldvIsActiveParticipation(p)).map(p=>p.person_id).filter(Boolean))];
+  const existing=(b.data||[]).filter(p=>ldvIsActiveParticipation(p));
   if(existing.length){out.textContent='Målresan har redan '+existing.length+' deltagare. Kopiering är spärrad för att undvika att skriva över en påbörjad lista.';return}
   if(!people.length){out.textContent='Källresan har inga aktiva deltagare att kopiera.';return}
   copyPreview={source,target,people};
@@ -249,7 +250,7 @@ el('copy-confirm').addEventListener('click',async()=>{
  try{
   const {data:check,error}=await supabase.rpc('ldv_admin_participants',{p_trip_id:p.target});
   if(error)throw Error(error.message);
-  if((check||[]).some(x=>x.status!=='cancelled'))throw Error('Målresan har fått deltagare sedan förhandsgranskningen. Avbryter.');
+  if((check||[]).some(x=>ldvIsActiveParticipation(x)))throw Error('Målresan har fått deltagare sedan förhandsgranskningen. Avbryter.');
   for(const personId of p.people){
    const {error:e}=await supabase.rpc('ldv_admin_set_participation',{p_person_id:personId,p_trip_id:p.target,p_selected:true});
    if(e)throw Error(e.message);done++;out.textContent='Kopierar '+done+' av '+p.people.length+' …';
@@ -322,13 +323,13 @@ function renderPeople(){
     const check=await supabase.rpc('ldv_admin_participants',{p_trip_id:tripId});
     if(check.error)error=check.error;
     else {
-     const stillSelected=(check.data||[]).some(p=>p.person_id===person.id&&p.status!=='cancelled');
+     const stillSelected=(check.data||[]).some(p=>p.person_id===person.id&&ldvIsActiveParticipation(p));
      if(stillSelected!==wanted)error={message:'Ändringen sparades inte i deltagarlistan. Kontrollera databasfunktionen ldv_admin_set_participation.'};
     }
    }
    if(error){
-    cb.disabled=false;
-    say('Kunde inte ändra deltagandet: '+error.message,true);
+    cb.checked=!wanted;cb.disabled=false;
+    say('Kunde inte ändra deltagandet för '+fullName+': '+error.message,true);
    }else{
     if(wanted)selectedCache.add(person.id);else selectedCache.delete(person.id);
     cb.checked=wanted;cb.disabled=false;
@@ -349,7 +350,7 @@ async function loadPeople(){
  if(e1||e2){list.textContent='Kunde inte läsa deltagare. Kontrollera adminfunktionerna i Supabase.';return}
  if(!people?.length){list.textContent='Inga personer i registret ännu.';return}
  peopleCache=[...people].sort((a,b)=>(a.first_name+' '+a.last_name).localeCompare(b.first_name+' '+b.last_name,'sv'));
- selectedCache=new Set((participants??[]).filter(p=>p.status!=='cancelled').map(p=>p.person_id));
+ selectedCache=new Set((participants??[]).filter(p=>ldvIsActiveParticipation(p)).map(p=>p.person_id));
  const genderToken=++genderLoadToken;
  const ids=[...selectedCache].filter(id=>!genderCache.has(id));
  (async()=>{let next=0;async function worker(){while(next<ids.length){const id=ids[next++];const {data,error}=await supabase.rpc('ldv_admin_person_gender',{p_person_id:id});if(genderToken!==genderLoadToken)return;genderCache.set(id,error?'':String(data||'').trim().toLocaleLowerCase('sv'));}}await Promise.all(Array.from({length:Math.min(6,ids.length)},()=>worker()));if(genderToken===genderLoadToken)renderPeople();})();
