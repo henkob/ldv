@@ -69,3 +69,14 @@ button.ldv-action-button[hidden],button[hidden],input[hidden]{display:none!impor
 #profile-form .profile-actions #profile-delete{flex:0 1 14%!important}
 #profile-form .profile-actions .ldv-action-icon{width:16px!important;height:16px!important}
 @media(max-width:520px){#profile-form .profile-actions{gap:4px!important}#profile-form .profile-actions button:not([hidden]){font-size:10px!important;padding:10px 4px!important;gap:3px!important}#profile-form .profile-actions .ldv-action-icon{width:13px!important;height:13px!important}}
+
+/* v3.67: samma diskreta mörkblå stängknapp i hela appen */
+button.profile-close,button#admin-photo-close,button#ldv-myprofile-photo-close,button[aria-label^="Stäng"],button[aria-label^="stäng"]{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;
+ padding:0!important;border:0!important;border-radius:11px!important;
+ background:#111a67!important;color:#fff!important;
+ font-family:Arial,Helvetica,sans-serif!important;font-size:24px!important;
+ font-weight:500!important;line-height:1!important;box-shadow:none!important;flex:none!important;
+}
+button.profile-close:hover,button#admin-photo-close:hover,button#ldv-myprofile-photo-close:hover,button[aria-label^="Stäng"]:hover{filter:brightness(1.15)!important}
