@@ -24,7 +24,7 @@ function excluded(b){
 }
 function decorate(b){
  if(b.dataset.ldvActionReady||excluded(b))return;
- if(!admin&&!b.matches('.btn,[type="submit"],[type="reset"],#ldv-photo-reset,#ldv-myprofile-save-top,#ldv-myprofile-save-bottom,.danger')&&!b.closest('#min-profil,.profile-actions,.avatar-editor,#ldv-myprofile-form'))return;
+ if(!admin&&!b.matches('.btn,[type="submit"],[type="reset"],#ldv-photo-reset,#ldv-myprofile-save-top,#ldv-myprofile-save-bottom,.danger')&&!b.closest('#min-profil,#minprofil,#ldv-myprofile-photo-dialog,.profile-actions,.avatar-editor,#ldv-myprofile-form'))return;
  const t=(b.textContent||'').trim().toLocaleLowerCase('sv');
  const danger=b.matches('.danger,[data-danger]')||/^(radera|ta bort|avlägsna)/.test(t);
  let type=danger?'delete':/spara|bekräfta/.test(t)?'save':/redigera|justera|ändra/.test(t)?'edit':/lägg till|skapa|ny deltagare/.test(t)?'add':/ladda upp|välj fil/.test(t)?'upload':/exportera|ladda ner/.test(t)?'download':/sök|jämför/.test(t)?'search':/tillbaka|avbryt/.test(t)?'back':/rensa|återställ/.test(t)?'reset':/bild|foto/.test(t)?'image':/importera|logga in|skicka/.test(t)?'check':'generic';
