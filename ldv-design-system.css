@@ -40,3 +40,16 @@ button,input[type=button],input[type=submit],input[type=reset],.btn{
 button:disabled,.btn:disabled{cursor:not-allowed;opacity:.6}
 input:not([type=button]):not([type=submit]):not([type=reset]),
 textarea,select{font-family:var(--ldv-font-body)!important}
+
+/* LDV v3.58: unified action buttons. Navigation, tabs and icon-only controls are excluded. */
+:root{--ldv-action-blue:#111a67;--ldv-action-red:#ad2538}
+button.ldv-action-button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;
+ background:var(--ldv-action-blue)!important;color:#fff!important;border:1px solid transparent!important;
+ border-radius:12px!important;font-family:var(--ldv-font-heading)!important;font-weight:700!important;
+ text-decoration:none!important;min-height:36px;box-shadow:none!important;
+}
+button.ldv-action-button.ldv-action-danger{background:var(--ldv-action-red)!important;color:#fff!important}
+button.ldv-action-button:not(:disabled):hover{filter:brightness(1.12)}
+button.ldv-action-button:focus-visible{outline:3px solid #f8c928!important;outline-offset:2px!important}
+button.ldv-action-button .ldv-action-icon{display:block!important;flex:none!important;width:18px!important;height:18px!important;color:inherit!important}
