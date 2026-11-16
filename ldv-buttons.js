@@ -1,4 +1,4 @@
-/* LDV action buttons v3.58. Navigation, tabs, close and icon-only controls retain their own styling. */
+/* LDV action buttons v3.59. Navigation, tabs, close and icon-only controls retain their own styling. */
 (()=>{'use strict';
 const paths={
  save:'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8M7 3v5h8',
@@ -32,7 +32,7 @@ function decorate(b){
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');svg.classList.add('ldv-action-icon');
  const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[type]);svg.append(path);
  b.classList.add('ldv-action-button');if(danger)b.classList.add('ldv-action-danger');
- b.prepend(svg);b.dataset.ldvActionReady='1';
+ if(!b.querySelector('svg,.lucide,[class*="icon"],img'))b.prepend(svg);b.dataset.ldvActionReady='1';
 }
 let scheduled=false;
 function scan(){scheduled=false;document.querySelectorAll('button,input[type="button"],input[type="submit"],input[type="reset"]').forEach(b=>{if(b.tagName==='BUTTON')decorate(b)})}
