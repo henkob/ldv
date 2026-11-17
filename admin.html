@@ -166,6 +166,19 @@ html,body,body :is(p,span,div,label,a,li,td,th,small,strong,b,em,i,blockquote,le
 body :is(h1,h2,h3,h4,h5,h6),body :is(.tag,.ldv-menu-sheet button,.ldv-menu-sheet a,#ldv-admin-menu-sheet button,#ldv-admin-menu-sheet a),body :is(#ldv-admin-auth-links a,#ldv-admin-auth-links button,#login button[type=submit]){font-family:var(--ldv-font-heading)!important}
 </style><style>/* Compact participant rows: show notes only when meaningful; icon-only edit button */
 .ldv-person-note:empty{display:none!important}.person-row .edit-person{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;flex:0 0 48px!important;border-radius:12px!important;background:#10166c!important;color:#fff!important}.person-row .edit-person svg{display:block;flex:none}@media(max-width:560px){.person-row .edit-person{order:2}}
+</style><style>
+/* v3.85 desktop: keep checkbox, avatar, name, optional note and edit button on one row */
+@media (min-width:900px){
+ #people-list .person-row{
+  display:grid!important;
+  grid-template-columns:32px 44px minmax(0,2fr) minmax(0,1fr) 100px!important;
+  align-items:center!important;
+  grid-auto-flow:row!important;
+ }
+ #people-list .person-row>.ldv-person-name{grid-column:3;min-width:0}
+ #people-list .person-row>.ldv-person-note{grid-column:4;min-width:0;margin:0!important;flex:none!important}
+ #people-list .person-row>.edit-person{grid-column:5;grid-row:1;justify-self:center}
+}
 </style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.85</span><style>
 /* LDV v3.73: gemensamt arbetsflöde för profilbilder i administrationen */
 .ldv-admin-avatar-summary{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important;padding:12px!important}
