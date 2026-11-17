@@ -164,6 +164,8 @@ body.ldv-admin-auth #login button[type=submit]{font-family:var(--ldv-font-headin
 :root{--ldv-font-body:Arial,Helvetica,sans-serif;--ldv-font-heading:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-family:var(--ldv-font-body)!important}
 html,body,body :is(p,span,div,label,a,li,td,th,small,strong,b,em,i,blockquote,legend,summary,figcaption,option),button,input,select,textarea{font-family:var(--ldv-font-body)!important}
 body :is(h1,h2,h3,h4,h5,h6),body :is(.tag,.ldv-menu-sheet button,.ldv-menu-sheet a,#ldv-admin-menu-sheet button,#ldv-admin-menu-sheet a),body :is(#ldv-admin-auth-links a,#ldv-admin-auth-links button,#login button[type=submit]){font-family:var(--ldv-font-heading)!important}
+</style><style>/* Compact participant rows: show notes only when meaningful; icon-only edit button */
+.ldv-person-note:empty{display:none!important}.person-row .edit-person{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;flex:0 0 48px!important;border-radius:12px!important;background:#10166c!important;color:#fff!important}.person-row .edit-person svg{display:block;flex:none}@media(max-width:560px){.person-row .edit-person{order:2}}
 </style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.85</span><style>
 /* LDV v3.73: gemensamt arbetsflöde för profilbilder i administrationen */
 .ldv-admin-avatar-summary{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important;padding:12px!important}
@@ -433,8 +435,8 @@ function renderPeople(){
     say('Kunde inte ändra deltagandet: '+error.message,true);
    }
   };
-  const avatar=document.createElement('img');avatar.className='avatar avatar-small';avatar.alt='';avatar.src=avatarFallback(person);loadAvatar(person.id,avatar);const name=document.createElement('span');name.className='ldv-person-name';name.textContent=person.first_name+' '+person.last_name+(tripCounts.get(person.id)===0?' 🐣':'');const note=document.createElement('span');note.className='ldv-person-note';note.textContent=adminNotes.get(person.id)||'';note.title=note.textContent;
-  const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.textContent='Redigera';view.setAttribute('aria-label','Redigera '+person.first_name+' '+person.last_name);view.onclick=()=>openProfile(person.id);label.append(cb,avatar,name,note,view);list.append(label);
+  const avatar=document.createElement('img');avatar.className='avatar avatar-small';avatar.alt='';avatar.src=avatarFallback(person);loadAvatar(person.id,avatar);const name=document.createElement('span');name.className='ldv-person-name';name.textContent=person.first_name+' '+person.last_name+(tripCounts.get(person.id)===0?' 🐣':'');const noteText=String(adminNotes.get(person.id)||'').trim();const hasNote=noteText!==''&&!/^[\-–—]+$/.test(noteText);const note=hasNote?document.createElement('span'):null;if(note){note.className='ldv-person-note';note.textContent=noteText;note.title=noteText;}
+  const view=document.createElement('button');view.type='button';view.className='secondary edit-person';view.innerHTML='<svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg>';view.title='Redigera '+person.first_name+' '+person.last_name;view.setAttribute('aria-label',view.title);view.onclick=()=>openProfile(person.id);label.append(cb,avatar,name);if(note)label.append(note);label.append(view);list.append(label);
 
  }
 }
