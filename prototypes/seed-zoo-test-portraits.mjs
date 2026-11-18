@@ -7,7 +7,7 @@
  */
 export async function seedZooPortraits(client,{projectUrl}={}){
  const expected='https://wtrrdxurgxyvfahhgbsh.supabase.co';
- if(projectUrl!==expected) throw new Error('Refusing to seed outside ldv-test');
+ if(projectUrl!==expected || !client?.supabaseUrl || client.supabaseUrl.replace(/\/$/,'')!==expected) throw new Error('Refusing to seed outside ldv-test');
  const {data:admin,error:adminError}=await client.rpc('ldv_is_admin');
  if(adminError||admin!==true) throw new Error('Authenticated test admin required');
  const {data:rows,error}=await client.rpc('ldv_admin_people');
