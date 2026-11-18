@@ -10,12 +10,12 @@ export async function seedZooPortraits(client,{projectUrl}={}){
  if(projectUrl!==expected) throw new Error('Refusing to seed outside ldv-test');
  const {data:admin,error:adminError}=await client.rpc('ldv_is_admin');
  if(adminError||admin!==true) throw new Error('Authenticated test admin required');
- const {data:rows,error}=await client.from('people').select('id,first_name,email').like('email','ldv-zoo-test-%@example.invalid').order('first_name');
+ const {data:rows,error}=await client.rpc('ldv_admin_people');
  if(error) throw error;
- if(rows.length!==84) throw new Error('Expected exactly 84 synthetic test people');
+ const synthetic=rows.filter(p=>/^ldv-zoo-test-\\d{3}@example\\.invalid$/.test(p.email||''));\n if(synthetic.length!==84) throw new Error('Expected exactly 84 synthetic test people');
  const storage=client.storage.from('ldv-avatars');
  let completed=0;
- for(const [index,p] of rows.entries()){
+ for(const [index,p] of synthetic.entries()){
   // Original illustrated test portraits: deterministic distinct shapes and colors.
   const hue=(index*137.508)%360;
   const hairHue=(hue+70)%360;
