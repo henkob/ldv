@@ -1,5 +1,4 @@
--- Test only: creates rounds only after 84 synthetic full-size portraits exist.
--- No execution until Saturday trip dates and browser image uploads are verified.
+-- Test only. Any start date permitted; synthetic portrait upload required.
 CREATE OR REPLACE FUNCTION public.ldv_zoo_prepare_test_rounds(p_first_day date)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -15,7 +14,7 @@ begin
      raise exception 'Test dataset missing; refusing to prepare quiz';
    end if;
  end if;
- if extract(isodow from p_first_day)<>6 then raise exception 'First quiz day must be Saturday'; end if;
+ if p_first_day is null then raise exception 'Start date required'; end if;
  if exists(select 1 from public.ldv_zoo_rounds where trip_id=2) then raise exception 'Rounds already prepared'; end if;
  select count(*) into v_count from public.people p
  join public.trip_participation tp on tp.person_id=p.id and tp.trip_id=2 and tp.status='confirmed'
@@ -27,10 +26,10 @@ begin
   values(2,v_i,(p_first_day+v_i)::timestamp at time zone 'Europe/Stockholm')
   returning id into v_round;
   insert into public.ldv_zoo_questions(round_id,position,person_id)
-  select v_round,row_number() over(order by p.email)::smallint - (v_i*14),p.id
-  from public.people p join public.trip_participation tp on tp.person_id=p.id and tp.trip_id=2 and tp.status='confirmed'
-  where p.email ~ '^ldv-zoo-test-[0-9]{3}@example[.]invalid$'
-  order by p.email offset (v_i*14) limit 14;
+  select v_round,(batch.n-(v_i*14))::smallint,batch.id
+  from (select p.id,row_number() over(order by p.email) as n from public.people p join public.trip_participation tp on tp.person_id=p.id and tp.trip_id=2 and tp.status='confirmed'
+  where p.email like 'ldv-zoo-test-%@example.invalid') batch
+  where batch.n > v_i*14 and batch.n <= (v_i+1)*14;
   get diagnostics v_inserted=row_count;
   if v_inserted<>14 then raise exception 'Expected 14 questions, got %',v_inserted; end if;
  end loop;
