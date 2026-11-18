@@ -34,7 +34,7 @@
   function show(){
     if(document.getElementById('ldv-consent-panel'))return;
     var overlay=document.createElement('div');overlay.id='ldv-consent-panel';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','Val av statistikcookies');
-    overlay.innerHTML='<div class="ldv-consent-card"><h2>Godkänn kakor</h2><p>Vi använder kakor för att samla in statistik och förbättra appen. Du väljer själv om du vill godkänna.</p><div class="ldv-consent-actions"><button type="button" data-choice="denied">Nej tack</button><button type="button" data-choice="granted">Godkänn</button></div></div>';
+    overlay.innerHTML='<div class="ldv-consent-card"><h2>Godkänn kakor</h2><p>Vi använder kakor för att samla in statistik och förbättra appen.</p><div class="ldv-consent-actions"><button type="button" data-choice="denied">Nej tack</button><button type="button" data-choice="granted">Godkänn</button></div></div>';
     document.body.appendChild(overlay);
     var previous=document.activeElement;
     function close(){overlay.remove();if(previous&&previous.focus)previous.focus()}
