@@ -31,8 +31,9 @@ export async function copyZooPortraitsFromProduction(production,test,{onProgress
  const storageSrc=production.storage.from('ldv-avatars');
  const storageDst=test.storage.from('ldv-avatars');
  let completed=0,skipped=[];
- for(let i=0;i<Math.min(src.length,dest.length);i++){
-  const person=src[i],target=dest[i];
+ if(src.length<14) throw Error('At least 14 eligible source participants required');
+ for(let i=0;i<dest.length;i++){
+  const person=src[i%src.length],target=dest[i];
   // Try the original full-size portrait first; only copy a real file.
   let blob=null;
   for(const suffix of ['avatar-full','avatar']){
@@ -55,7 +56,7 @@ export async function copyZooPortraitsFromProduction(production,test,{onProgress
    if(error) throw Error('Test portrait upload failed: '+error.message);
   }
   completed++;
-  onProgress({completed,total:Math.min(src.length,dest.length),skipped:skipped.length});
+  onProgress({completed,total:dest.length,skipped:skipped.length});
  }
  return {completed,uploadedObjects:completed*2,skippedSourceIds:skipped,
   note:'Only test records changed; no production writes.'};
