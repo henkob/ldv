@@ -1,5 +1,5 @@
 /**
- * Copies ONLY real first names, nicknames and private portrait files from LDV production
+ * Copies only first names, nicknames and private portrait files from LDV production
  * into 84 EXISTING synthetic test records. No production writes and no real email copied.
  * Both clients must already be signed in as administrators in their respective projects.
  * Run in an authenticated browser with the two Supabase clients passed explicitly.
@@ -14,7 +14,8 @@ export async function copyZooPortraitsFromProduction(production,test,{onProgress
   if(error||data!==true) throw Error(label+' administrator login required');
  }
  const [srcRes,dstRes]=await Promise.all([
-  production.rpc('ldv_admin_people'),test.rpc('ldv_admin_people')
+  production.rpc('ldv_admin_people').select('id,first_name,nickname'),
+  test.rpc('ldv_admin_people').select('id,email').like('email','ldv-zoo-test-%@example.invalid')
  ]);
  if(srcRes.error) throw srcRes.error;
  if(dstRes.error) throw dstRes.error;
@@ -23,41 +24,53 @@ export async function copyZooPortraitsFromProduction(production,test,{onProgress
  if(dest.length!==84) throw Error('Expected 84 synthetic destination records');
  // Do not use the current trip participants blindly: only confirmed 2027 trip members.
  const {data:participants,error:participantsError}=await production
-  .from('trip_participation').select('person_id').eq('trip_id',2).eq('status','confirmed');
+  .rpc('ldv_admin_participants',{p_trip_id:2}).select('person_id').eq('status','confirmed');
  if(participantsError) throw participantsError;
  const allowed=new Set(participants.map(x=>x.person_id));
  const src=srcRes.data.filter(p=>allowed.has(p.id))
   .sort((a,b)=>a.id.localeCompare(b.id));
  const storageSrc=production.storage.from('ldv-avatars');
  const storageDst=test.storage.from('ldv-avatars');
- let completed=0,skipped=[];
- if(src.length<14) throw Error('At least 14 eligible source participants required');
- for(let i=0;i<dest.length;i++){
-  const person=src[i%src.length],target=dest[i];
-  // Try the original full-size portrait first; only copy a real file.
-  let blob=null;
+ const available=[];
+ for(const person of src){
+  if(!person.first_name?.trim()) continue;
   for(const suffix of ['avatar-full','avatar']){
    const {data,error}=await storageSrc.download(person.id+'/'+suffix);
-   if(!error && data){blob=data;break;}
+   if(error) continue;
+   if(data?.size && /^image\/(jpeg|png|webp)$/i.test(data.type)){
+    const image=await createImageBitmap(data).catch(()=>null);
+    if(!image) continue;
+    const canvas=document.createElement('canvas');
+    const scale=Math.min(1,640/Math.max(image.width,image.height));
+    canvas.width=Math.max(1,Math.round(image.width*scale));
+    canvas.height=Math.max(1,Math.round(image.height*scale));
+    canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+    image.close();
+    // Re-encode so filenames and embedded EXIF cannot reveal the answer.
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.9));
+    if(!blob) continue;
+    available.push({person,blob,key:crypto.randomUUID()});
+    break;
+   }
   }
-  if(!blob){skipped.push(person.id);continue;}
-  // Preserve synthetic email to avoid importing personal contact data.
-  const {error:updateError}=await test.rpc('ldv_admin_update_person',{
-   p_person_id:target.id,p_first_name:person.first_name,p_last_name:person.last_name,
-   p_nickname:person.nickname||'',p_email:target.email,p_phone:null,
-   p_who_is_who:null,p_helmet_color:null,p_jacket_color:null,
-   p_pants_color:null,p_allergies:null
-  });
-  if(updateError) throw Error('Test name update failed: '+updateError.message);
-  for(const suffix of ['avatar','avatar-full']){
-   const {error}=await storageDst.upload(target.id+'/'+suffix,blob,{
-    contentType:blob.type||'image/jpeg',upsert:true
-   });
-   if(error) throw Error('Test portrait upload failed: '+error.message);
-  }
-  completed++;
-  onProgress({completed,total:dest.length,skipped:skipped.length});
  }
- return {completed,uploadedObjects:completed*2,skippedSourceIds:skipped,
-  note:'Only test records changed; no production writes.'};
+ if(available.length<14) throw Error('At least 14 readable source portraits required');
+ let completed=0;
+ for(const [index,target] of dest.entries()){
+  const {person,blob,key}=available[index%available.length];
+  const path='zoo/'+crypto.randomUUID();
+  const {error}=await storageDst.upload(path,blob,{contentType:blob.type});
+  if(error) throw error;
+  const verified=await storageDst.download(path);
+  if(verified.error || verified.data.size!==blob.size) throw Error('Test portrait verification failed');
+  const picture=await createImageBitmap(verified.data);
+  picture.close();
+  const {error:registerError}=await test.rpc('ldv_zoo_register_portrait',{
+   p_slot:target.id,p_photo_path:path,p_portrait_key:key,
+   p_first_name:person.first_name,p_nickname:person.nickname
+  });
+  if(registerError) throw registerError;
+  onProgress({completed:++completed,total:dest.length});
+ }
+ return {completed,uniquePortraits:Math.min(available.length,dest.length)};
 }
