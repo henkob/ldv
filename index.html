@@ -483,8 +483,9 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-answer-actions{display:grid}
 #zoo .zoo-answer-actions button{box-sizing:border-box;width:100%;min-height:44px;padding:6px 12px;text-align:center;cursor:pointer}
 #zoo .zoo-answer-label{display:flex;align-items:center;justify-content:center;gap:6px}
-#zoo .zoo-answer-label button{width:36px;height:36px;min-height:36px;flex:none;padding:0;border:0;background:transparent;color:#142b60;cursor:pointer}
-#zoo .zoo-info-icon{display:grid;place-items:center;width:22px;height:22px;margin:auto;border:1px solid currentColor;border-radius:50%;font:700 14px/1 system-ui}
+#zoo .zoo-answer-label button{display:grid;place-items:center;width:40px;height:40px;min-height:40px;flex:none;padding:0;border:1px solid #9db3cf;border-radius:12px;background:#eef4fb;color:#142b60;cursor:pointer}
+#zoo .zoo-answer-label button[aria-expanded="true"]{background:#fff0b5;border-color:#967326}
+#zoo .zoo-rookie-badge{position:absolute;right:10px;bottom:10px;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff;color:#142b60;box-shadow:0 2px 7px #142b6040;font-size:23px;line-height:1;pointer-events:none}
 #zoo .zoo-hint-slot{block-size:1.5rem}
 #zoo .zoo-hint{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transform:translateY(-4px)}
 #zoo .zoo-hint[data-open]{grid-template-rows:1fr;opacity:1;visibility:visible;transform:none}
@@ -542,13 +543,14 @@ main.wrap > header .ldv-header-version{
           <p data-zoo="progress"></p>
           <div class="zoo-portrait">
             <img data-zoo="portrait" alt="Deltagarporträtt">
+            <span class="zoo-rookie-badge" data-zoo="rookie-badge" role="img" aria-label="Rookie, första LDV-resan" hidden>🐣</span>
             <div data-zoo="effects" aria-hidden="true"></div>
           </div>
           <div class="zoo-answer-slot">
             <form id="zoo-answer-form" data-zoo="form">
               <div class="zoo-answer-label">
                 <label for="zoo-guess">Förnamn eller smeknamn?</label>
-                <button type="button" data-zoo="hint" aria-label="Visa ledtråd" aria-expanded="false" aria-controls="zoo-first-letter"><span class="zoo-info-icon" aria-hidden="true">i</span></button>
+                <button type="button" data-zoo="hint" aria-label="Visa ledtråd" aria-expanded="false" aria-controls="zoo-first-letter"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6m-5 3h4m-5-6c0-2-3-3-3-7a6 6 0 1 1 12 0c0 4-3 5-3 7v1H9z"/></svg></button>
               </div>
               <div class="zoo-hint-slot">
                 <div class="zoo-hint" data-zoo="hint-disclosure">
@@ -743,7 +745,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=11';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=12';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
