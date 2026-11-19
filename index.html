@@ -478,9 +478,27 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-portrait img{display:block;width:100%;max-height:440px;object-fit:contain;border-radius:12px}
 #zoo .zoo-confetti{position:absolute;top:50%;left:50%;height:7px;width:7px;pointer-events:none}
 #zoo form{display:grid;gap:8px;max-width:320px}
+#zoo [data-zoo="admin-controls"]{margin:16px 0;padding:12px;border:1px solid #dbe4ef;border-radius:12px;}
+#zoo [data-zoo="admin-controls"] details{margin-top:10px}
+#zoo [data-zoo="schedule"]{margin-top:10px}
+#zoo [data-zoo="schedule"] input{font:inherit;padding:7px;width:fit-content}
 </style><main class="wrap"><header><button type="button" id="ldv-logo-refresh" class="header-home" aria-label="Uppdatera appen" title="Uppdatera appen"><img src="Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" style="width:176px;height:176px;object-fit:contain"></button><button id="ldv-header-profile" style="position:relative;display:none;flex:0 0 54px;width:54px;height:54px;min-width:54px;max-width:54px;min-height:54px;max-height:54px;padding:0;overflow:hidden;border:0;border-radius:50%;background:transparent;box-shadow:none" type="button" aria-label="Öppna Min profil" title="Min profil"><img id="ldv-header-profile-img" alt="Din profilbild" hidden style="position:absolute;inset:0;width:100%!important;height:100%!important;min-width:100%;min-height:100%;max-width:100%;max-height:100%;object-fit:cover;border-radius:50%;margin:0;padding:0;border:0"><span id="ldv-header-profile-fallback" aria-hidden="true">👤</span></button><span id="ldv-header-profile-name" aria-hidden="true"></span></header><section id="zoo" hidden>
   <div class="zoo-game">
     <h1>Who is Who in the Zoo?</h1>
+    <div data-zoo="admin-controls" hidden>
+      <p data-zoo="test-dates"></p>
+      <button type="button" data-zoo="admin-mode">Förhandsvisa porträtt</button>
+      <details>
+        <summary>Ändra testvecka</summary>
+        <form data-zoo="schedule">
+          <label for="zoo-test-start">Startdatum</label>
+          <input id="zoo-test-start" data-zoo="test-start" type="date" required max="2027-01-23" aria-describedby="zoo-test-help">
+          <small id="zoo-test-help">En omgång öppnar varje dag i sex dagar. Topplistan visas den sjunde dagen. Ett nytt startdatum startar ett nytt test med noll poäng.</small>
+          <button data-zoo="schedule-save">Spara testvecka</button>
+        </form>
+        <p data-zoo="schedule-status" role="status"></p>
+      </details>
+    </div>
     <p data-zoo="score"></p>
     <div data-zoo="rounds" class="zoo-rounds"></div>
     <p data-zoo="status" role="status"></p>
@@ -663,7 +681,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=2';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
