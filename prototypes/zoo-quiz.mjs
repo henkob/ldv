@@ -8,11 +8,16 @@ export function mountZooGame(client, root) {
   const guess = get('guess');
   const hint = get('hint');
   const hintText = get('hint-text');
+  const hintDisclosure = get('hint-disclosure');
   const reveal = get('reveal');
   const next = get('next');
+  const revealLabel = get('reveal-label');
+  const nextLabel = get('next-label');
   const status = get('status');
   const loadButton = get('reload');
   const dialog = get('dialog');
+  const dialogTitle = get('dialog-title');
+  const dialogProgress = get('dialog-progress');
   const interaction = get('interaction');
   const nameDisplay = get('name');
   const resultDisplay = get('result');
@@ -23,6 +28,7 @@ export function mountZooGame(client, root) {
   const leaderboard = get('leaderboard');
   const dailyResults = get('daily-results');
   const date = new Intl.DateTimeFormat('sv-SE', {dateStyle:'medium', timeZone:'Europe/Stockholm'});
+  const weekday = new Intl.DateTimeFormat('sv-SE', {weekday:'long', timeZone:'Europe/Stockholm'});
   let portraitPreview = false;
   let game, roundIndex, question, outcome, name, letters, photoUrl, previewIndex, dialogRound, finalTestQuestion, generation = 0;
   let submitting = false;
@@ -44,6 +50,12 @@ export function mountZooGame(client, root) {
   viewport?.addEventListener('scroll', fitKeyboard);
   guess.addEventListener('focus', fitKeyboard);
   guess.addEventListener('blur', () => dialog.removeAttribute('data-keyboard'));
+
+  function setHintExpanded(expanded) {
+    hint.setAttribute('aria-expanded', String(expanded));
+    hint.setAttribute('aria-label', expanded ? 'Dölj ledtråd' : 'Visa ledtråd');
+    hintDisclosure.toggleAttribute('data-open', expanded);
+  }
 
   async function load(index, previewPosition = 0) {
     const current = ++generation;
@@ -92,7 +104,11 @@ export function mountZooGame(client, root) {
       button.addEventListener('click', () => {
         if (game.testWeekId) {
           dialogRound = round.roundIndex;
-          get('dialog-title').textContent = 'Omgång ' + (dialogRound + 1);
+          const scheduled = official.data?.rounds?.find(item => item.roundIndex === dialogRound);
+          const day = scheduled?.unlockAt ? weekday.format(new Date(scheduled.unlockAt)) : '';
+          dialogTitle.textContent = day ? day[0].toLocaleUpperCase('sv-SE') + day.slice(1) + 'ens bilder'
+            : 'Omgång ' + (dialogRound + 1);
+          dialogProgress.textContent = '';
           dialog.append(interaction);
           openViewportHeight = viewport?.height ?? 0;
           dialog.showModal();
@@ -169,23 +185,23 @@ export function mountZooGame(client, root) {
     if (current !== generation) return;
     portrait.src = preload.src;
     guess.value = '';
-    hint.hidden = false;
     hint.disabled = false;
-    hintText.hidden = true;
+    setHintExpanded(false);
     hintText.textContent = '';
     status.textContent = '';
     resultDisplay.textContent = '';
     nameDisplay.textContent = '';
     progress.textContent = (round.questions.indexOf(question) + 1) + '/' + round.questions.length;
+    dialogProgress.textContent = progress.textContent;
     form.hidden = Boolean(game.preview);
     submit.hidden = form.hidden;
     feedback.hidden = !game.preview;
     reveal.hidden = true;
     next.hidden = !game.preview;
-    next.textContent = game.preview ? 'Nästa porträtt' : (finalTestQuestion ? 'Visa resultat' : 'Fortsätt');
+    nextLabel.textContent = game.preview ? 'Nästa porträtt' : (finalTestQuestion ? 'Visa resultat' : 'Fortsätt');
     play.hidden = false;
     if (dialog.open) {
-      progress.focus({preventScroll:true});
+      dialogTitle.focus({preventScroll:true});
       dialog.scrollTop = 0;
     }
   }
@@ -211,7 +227,11 @@ export function mountZooGame(client, root) {
   }
 
   hint.addEventListener('click', async () => {
-    if (!question || form.hidden || hint.disabled || hint.hidden || submitting) return;
+    if (!question || form.hidden || hint.disabled || submitting) return;
+    if (hintText.textContent) {
+      setHintExpanded(hint.getAttribute('aria-expanded') !== 'true');
+      return;
+    }
     const current = generation;
     hint.disabled = true;
     const {data, error} = await client.rpc('ldv_zoo_first_letter_hint', {
@@ -223,12 +243,9 @@ export function mountZooGame(client, root) {
       status.textContent = 'Ledtråden kunde inte visas. Försök igen.';
       return;
     }
-    const refocus = document.activeElement === hint;
     status.textContent = '';
-    hint.hidden = true;
-    hintText.hidden = false;
+    setHintExpanded(true);
     hintText.textContent = 'Förnamnet börjar på ' + data + '.';
-    if (refocus) hintText.focus({preventScroll:true});
   });
 
   form.addEventListener('submit', async event => {
@@ -259,7 +276,7 @@ export function mountZooGame(client, root) {
       form.hidden = true;
       submit.hidden = true;
       feedback.hidden = false;
-      reveal.textContent = name.length === 1 ? 'Visa facit' : 'Visa första bokstaven';
+      revealLabel.textContent = name.length === 1 ? 'Visa facit' : 'Visa första bokstaven';
       reveal.hidden = false;
       reveal.focus({preventScroll:true});
     } finally {
@@ -275,7 +292,7 @@ export function mountZooGame(client, root) {
     piece.textContent = name[letters++];
     if (letters < name.length) {
       nameDisplay.append(piece);
-      reveal.textContent = letters === name.length - 1 ? 'Visa sista bokstaven' : 'Visa nästa bokstav';
+      revealLabel.textContent = letters === name.length - 1 ? 'Visa sista bokstaven' : 'Visa nästa bokstav';
       return;
     }
     const {correct, nickname, last_name:lastName, total_points:totalPoints} = outcome;
