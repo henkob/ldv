@@ -191,23 +191,22 @@ export function mountZooGame(client, root) {
   }
 
   function animateResult(correct) {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    portrait.animate(correct
-      ? [{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}]
-      : [{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],
-      {duration:400});
-    if (!correct) return;
-    for (let i = 0; i < 32; i++) {
+    if (!correct || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    portrait.animate(
+      [{transform:'scale(1)'},{transform:'scale(1.025)'},{transform:'scale(1)'}],
+      {duration:450,easing:'ease-in-out'}
+    );
+    for (let i = 0; i < 16; i++) {
       const piece = document.createElement('span');
       piece.className = 'zoo-confetti';
       piece.style.backgroundColor = ['#ffce47','#db4280','#317fb9','#43a36c'][i % 4];
       get('effects').append(piece);
       const angle = Math.random() * Math.PI * 2;
-      const distance = 35 + Math.random() * 115;
-      piece.animate([{transform:'translate(0,0)'},{
-        transform:'translate(' + Math.cos(angle)*distance + 'px,' + Math.sin(angle)*distance + 'px) rotate(220deg)',
+      const distance = 24 + Math.random() * 70;
+      piece.animate([{transform:'translate(0,0)',opacity:.8},{
+        transform:'translate(' + Math.cos(angle)*distance + 'px,' + Math.sin(angle)*distance + 'px) rotate(120deg)',
         opacity:0
-      }], {duration:550 + Math.random()*350}).finished.then(() => piece.remove());
+      }], {duration:600 + Math.random()*240,easing:'ease-out'}).finished.then(() => piece.remove());
     }
   }
 
@@ -271,15 +270,19 @@ export function mountZooGame(client, root) {
 
   reveal.addEventListener('click', () => {
     if (!outcome) return;
-    nameDisplay.textContent = name.slice(0, ++letters).join('');
+    const piece = document.createElement('span');
+    piece.className = 'zoo-letter';
+    piece.textContent = name[letters++];
     if (letters < name.length) {
+      nameDisplay.append(piece);
       reveal.textContent = letters === name.length - 1 ? 'Visa sista bokstaven' : 'Visa nästa bokstav';
       return;
     }
     const {correct, nickname, last_name:lastName, total_points:totalPoints} = outcome;
     const alias = nickname?.trim();
-    nameDisplay.textContent = [name.join(''), alias ? '”' + alias + '”' : '', lastName?.trim()]
+    piece.textContent = [piece.textContent, alias ? '”' + alias + '”' : '', lastName?.trim()]
       .filter(Boolean).join(' ');
+    nameDisplay.append(piece);
     outcome = null;
     resultDisplay.textContent = correct ? 'Rätt!' : 'Fel svar.';
     get('score').textContent = (game.testWeekId ? 'Dina testpoäng: ' : 'Din poäng: ') + totalPoints;
