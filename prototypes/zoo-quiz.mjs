@@ -3,6 +3,7 @@ export function mountZooGame(client, root) {
   const rounds = get('rounds');
   const play = get('play');
   const form = get('form');
+  const submit = get('submit');
   const portrait = get('portrait');
   const guess = get('guess');
   const hint = get('hint');
@@ -177,6 +178,7 @@ export function mountZooGame(client, root) {
     nameDisplay.textContent = '';
     progress.textContent = (round.questions.indexOf(question) + 1) + '/' + round.questions.length;
     form.hidden = Boolean(game.preview);
+    submit.hidden = form.hidden;
     feedback.hidden = !game.preview;
     reveal.hidden = true;
     next.hidden = !game.preview;
@@ -234,7 +236,7 @@ export function mountZooGame(client, root) {
     event.preventDefault();
     if (!game || !question || game.preview || form.hidden || submitting || !guess.value.trim()) return;
     submitting = true;
-    get('submit').disabled = true;
+    submit.disabled = true;
     const current = generation;
     try {
       const params = {p_question_id:question.questionId, p_guess:guess.value.trim()};
@@ -256,13 +258,14 @@ export function mountZooGame(client, root) {
       name = firstName.match(/\P{L}*\p{L}\p{M}*\P{L}*/gu) ?? [firstName];
       letters = 0;
       form.hidden = true;
+      submit.hidden = true;
       feedback.hidden = false;
       reveal.textContent = name.length === 1 ? 'Visa facit' : 'Visa första bokstaven';
       reveal.hidden = false;
-      reveal.focus();
+      reveal.focus({preventScroll:true});
     } finally {
       submitting = false;
-      get('submit').disabled = false;
+      submit.disabled = false;
     }
   });
 
@@ -283,7 +286,7 @@ export function mountZooGame(client, root) {
     animateResult(correct);
     reveal.hidden = true;
     next.hidden = false;
-    next.focus();
+    next.focus({preventScroll:true});
   });
   next.addEventListener('click', () => {
     if (finalTestQuestion && dialog.open) {
