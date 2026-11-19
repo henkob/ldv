@@ -23,6 +23,24 @@ export function mountZooGame(client, root) {
   let portraitPreview = false;
   let game, roundIndex, question, outcome, name, letters, photoUrl, previewIndex, dialogRound, generation = 0;
   let submitting = false;
+  const viewport = window.visualViewport;
+  let openViewportHeight = 0;
+
+  function fitKeyboard() {
+    // iOS can pan the visual viewport while the layout viewport keeps its height.
+    const keyboard = dialog.open && document.activeElement === guess && viewport
+      && viewport.scale === 1 && Math.max(openViewportHeight, window.innerHeight) - viewport.height > 100;
+    dialog.toggleAttribute('data-keyboard', Boolean(keyboard));
+    if (keyboard) {
+      dialog.style.setProperty('--zoo-keyboard-top', Math.round(viewport.offsetTop + 8) + 'px');
+      dialog.style.setProperty('--zoo-keyboard-height', Math.floor(viewport.height - 16) + 'px');
+    }
+  }
+
+  viewport?.addEventListener('resize', fitKeyboard);
+  viewport?.addEventListener('scroll', fitKeyboard);
+  guess.addEventListener('focus', fitKeyboard);
+  guess.addEventListener('blur', () => dialog.removeAttribute('data-keyboard'));
 
   async function load(index, previewPosition = 0) {
     const current = ++generation;
@@ -77,6 +95,7 @@ export function mountZooGame(client, root) {
           dialogRound = round.roundIndex;
           get('dialog-title').textContent = 'Omgång ' + (dialogRound + 1);
           dialog.append(interaction);
+          openViewportHeight = viewport?.height ?? 0;
           dialog.showModal();
         }
         return load(round.roundIndex);
@@ -222,6 +241,7 @@ export function mountZooGame(client, root) {
   get('dialog-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', async () => {
     const closedRound = dialogRound;
+    dialog.removeAttribute('data-keyboard');
     play.hidden = true;
     get('inline').append(interaction);
     await load();
