@@ -505,6 +505,15 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-dialog[data-keyboard] .zoo-portrait{height:clamp(72px,calc(var(--zoo-height) - 300px),220px);margin:6px auto}
 #zoo [data-zoo="name"]{font-size:1.5rem;font-weight:750;overflow-wrap:anywhere}
 #zoo .zoo-dialog [data-zoo="name"], #zoo .zoo-dialog button{text-align:center}
+@keyframes zoo-fade-in{from{opacity:.35}to{opacity:1}}
+@keyframes zoo-soft-in{from{opacity:.45;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){
+  #zoo .zoo-letter,
+  #zoo .zoo-answer-actions button:not([hidden]){animation:zoo-fade-in .3s ease both}
+  #zoo [data-zoo="play"]:not([hidden]) .zoo-portrait,
+  #zoo [data-zoo="hint-text"]:not([hidden]),
+  #zoo [data-zoo="result"]:not(:empty){animation:zoo-soft-in .38s ease both}
+}
 #zoo .zoo-daily-results{list-style:none;margin:12px 0 24px;padding:0}
 #zoo .zoo-daily-results li{display:grid;grid-template-columns:auto minmax(40px,1fr) auto;align-items:center;gap:10px;margin:8px 0}
 #zoo .zoo-bar{height:10px;background:#e7edf7;border-radius:8px;overflow:hidden}
@@ -534,7 +543,7 @@ main.wrap > header .ldv-header-version{
               <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
             </form>
             <div data-zoo="feedback" hidden>
-              <p data-zoo="name" aria-live="polite"></p>
+              <p data-zoo="name" aria-live="polite" aria-atomic="true"></p>
               <p data-zoo="result" role="status"></p>
             </div>
           </div>
@@ -720,7 +729,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=9';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=10';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
