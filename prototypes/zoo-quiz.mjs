@@ -5,6 +5,7 @@ export function mountZooGame(client, root) {
   const form = get('form');
   const submit = get('submit');
   const portrait = get('portrait');
+  const rookieBadge = get('rookie-badge');
   const guess = get('guess');
   const hint = get('hint');
   const hintText = get('hint-text');
@@ -184,6 +185,7 @@ export function mountZooGame(client, root) {
     }
     if (current !== generation) return;
     portrait.src = preload.src;
+    rookieBadge.hidden = question.rookie !== true;
     guess.value = '';
     hint.disabled = false;
     setHintExpanded(false);
