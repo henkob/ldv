@@ -487,8 +487,16 @@ main.wrap > header .ldv-header-version{
 .zoo-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .zoo-dialog-header h2{margin:0;font-size:1.25rem}
 .zoo-dialog button{min-height:44px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:9px;background:#eef4fb;color:#142b60;font:inherit;font-weight:700;cursor:pointer}
-.zoo-dialog [data-zoo="guess"]{box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
+#zoo .zoo-dialog [data-zoo="form"]{margin-inline:auto;text-align:center}
+.zoo-dialog [data-zoo="guess"]{text-align:center;box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
 #zoo .zoo-dialog .zoo-portrait img{max-height:42dvh}
+.zoo-dialog[data-keyboard]{position:fixed;inset:var(--zoo-keyboard-top) 0 auto;margin:0 auto;max-height:var(--zoo-keyboard-height);padding-block:10px 12px}
+.zoo-dialog[data-keyboard] .zoo-dialog-header{margin-bottom:4px}
+#zoo .zoo-dialog[data-keyboard] [data-zoo="progress"]{margin:4px 0}
+#zoo .zoo-dialog[data-keyboard] .zoo-portrait{margin:6px auto}
+#zoo .zoo-dialog[data-keyboard] .zoo-portrait img{max-height:clamp(80px,calc(var(--zoo-keyboard-height) - 235px),220px)}
+#zoo .zoo-dialog[data-keyboard] [data-zoo="result"]:empty,
+#zoo .zoo-dialog[data-keyboard] [data-zoo="name"]:empty{display:none}
 #zoo [data-zoo="name"]{font-size:1.25rem;font-weight:750;overflow-wrap:anywhere}
 #zoo .zoo-dialog [data-zoo="name"], #zoo .zoo-dialog button{text-align:center}
 #zoo .zoo-dialog [data-zoo="reveal"], #zoo .zoo-dialog [data-zoo="next"]{display:block;margin-inline:auto;max-width:100%}
@@ -523,7 +531,7 @@ main.wrap > header .ldv-header-version{
           </div>
           <form data-zoo="form">
             <label for="zoo-guess">Vad heter personen i förnamn?</label>
-            <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off">
+            <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
             <button data-zoo="submit">Svara</button>
           </form>
           <p data-zoo="result" role="status"></p>
@@ -701,7 +709,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=3';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=4';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
