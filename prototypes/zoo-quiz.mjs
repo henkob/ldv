@@ -16,12 +16,11 @@ export function mountZooGame(client, root) {
   const progress = get('progress');
   const adminControls = get('admin-controls');
   const adminMode = get('admin-mode');
-  const schedule = get('schedule');
-  const testStart = get('test-start');
-  const scheduleStatus = get('schedule-status');
+  const leaderboard = get('leaderboard');
+  const dailyResults = get('daily-results');
   const date = new Intl.DateTimeFormat('sv-SE', {dateStyle:'medium', timeZone:'Europe/Stockholm'});
   let portraitPreview = false;
-  let game, roundIndex, question, outcome, name, letters, photoUrl, previewIndex, dialogRound, generation = 0;
+  let game, roundIndex, question, outcome, name, letters, photoUrl, previewIndex, dialogRound, finalTestQuestion, generation = 0;
   let submitting = false;
   const viewport = window.visualViewport;
   let openViewportHeight = 0;
@@ -48,6 +47,7 @@ export function mountZooGame(client, root) {
     previewIndex = previewPosition;
     outcome = null;
     question = null;
+    finalTestQuestion = false;
     play.hidden = true;
     if (photoUrl) URL.revokeObjectURL(photoUrl);
     photoUrl = undefined;
@@ -60,13 +60,8 @@ export function mountZooGame(client, root) {
     if (current !== generation) return;
     const {data, error} = admin && !portraitPreview ? test : official;
     adminControls.hidden = !admin || Boolean(test?.error);
-    if (admin && !test.error) {
-      const displayDay = day => date.format(new Date(day + 'T12:00:00Z'));
-      get('test-dates').textContent = 'Testvecka ' + displayDay(test.data.startsOn) + ' till ' + displayDay(test.data.endsOn);
-      adminMode.textContent = portraitPreview ? 'Tillbaka till testspelet' : 'Förhandsvisa porträtt';
-      testStart.value = test.data.startsOn;
-      testStart.min = test.data.earliestStart;
-    }
+    adminMode.textContent = portraitPreview ? 'Tillbaka till testspelet' : 'Förhandsvisa porträtt';
+    leaderboard.hidden = true;
     if (error) {
       status.textContent = 'Quizet kunde inte laddas.';
       loadButton.hidden = false;
@@ -104,8 +99,27 @@ export function mountZooGame(client, root) {
     }
     status.textContent = game.testWeekId && game.finished ? 'Testspelet är avslutat.' :
       (game.rounds.length ? '' : 'Omgångarna är inte klara ännu.');
-    const leaderboard = get('leaderboard');
     leaderboard.hidden = !game.finished;
+    dailyResults.replaceChildren();
+    if (game.finished) {
+      for (const round of game.rounds) {
+        const correct = round.questions.filter(question => question.correct).length;
+        const total = round.questions.length;
+        const item = document.createElement('li');
+        const label = document.createElement('span');
+        label.textContent = 'Dag ' + (round.roundIndex + 1);
+        const bar = document.createElement('span');
+        bar.className = 'zoo-bar';
+        bar.setAttribute('aria-hidden', 'true');
+        const fill = document.createElement('span');
+        fill.style.width = (total ? correct / total * 100 : 0) + '%';
+        bar.append(fill);
+        const value = document.createElement('strong');
+        value.textContent = correct + ' av ' + total;
+        item.append(label, bar, value);
+        dailyResults.append(item);
+      }
+    }
     const scores = get('scores');
     scores.replaceChildren();
     for (const entry of game.leaderboard ?? []) {
@@ -125,6 +139,8 @@ export function mountZooGame(client, root) {
       return;
     }
 
+    finalTestQuestion = Boolean(game.testWeekId) && game.rounds.every(round =>
+      round.questions.every(entry => entry.answered || entry.questionId === question.questionId));
     status.textContent = 'Laddar porträttet …';
     const {data: image, error: photoError} = await client.functions.invoke('ldv-zoo-portrait', {
       body: {questionId:question.questionId}
@@ -156,7 +172,7 @@ export function mountZooGame(client, root) {
     form.hidden = game.preview;
     reveal.hidden = true;
     next.hidden = !game.preview;
-    next.textContent = game.preview ? 'Nästa porträtt' : 'Fortsätt';
+    next.textContent = game.preview ? 'Nästa porträtt' : (finalTestQuestion ? 'Visa resultat' : 'Fortsätt');
     play.hidden = false;
     if (dialog.open) {
       progress.focus({preventScroll:true});
@@ -236,7 +252,13 @@ export function mountZooGame(client, root) {
     next.hidden = false;
     next.focus();
   });
-  next.addEventListener('click', () => load(roundIndex, game.preview ? previewIndex + 1 : 0));
+  next.addEventListener('click', () => {
+    if (finalTestQuestion && dialog.open) {
+      dialog.close();
+      return;
+    }
+    return load(roundIndex, game.preview ? previewIndex + 1 : 0);
+  });
   loadButton.addEventListener('click', () => load(roundIndex, previewIndex));
   get('dialog-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', async () => {
@@ -245,32 +267,16 @@ export function mountZooGame(client, root) {
     play.hidden = true;
     get('inline').append(interaction);
     await load();
-    if (!dialog.open) {
+    if (dialog.open) return;
+    if (!leaderboard.hidden) {
+      get('results-title').focus();
+    } else {
       rounds.querySelector('[data-zoo-round="' + closedRound + '"]')?.focus();
     }
   });
   adminMode.addEventListener('click', () => {
     portraitPreview = !portraitPreview;
     load();
-  });
-  schedule.addEventListener('submit', async event => {
-    event.preventDefault();
-    const save = get('schedule-save');
-    if (save.disabled) return;
-    save.disabled = true;
-    scheduleStatus.textContent = 'Sparar testveckan …';
-    try {
-      const {error} = await client.rpc('ldv_zoo_schedule_test_week', {p_starts_on:testStart.value});
-      if (error) {
-        scheduleStatus.textContent = 'Testveckan kunde inte sparas. Välj ett startdatum från idag till 23 januari.';
-        return;
-      }
-      portraitPreview = false;
-      await load();
-      scheduleStatus.textContent = 'Testveckan är sparad.';
-    } finally {
-      save.disabled = false;
-    }
   });
   return () => load();
 }
