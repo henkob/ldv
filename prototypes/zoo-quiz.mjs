@@ -9,6 +9,13 @@ export function mountZooGame(client, root) {
   const next = get('next');
   const status = get('status');
   const loadButton = get('reload');
+  const adminControls = get('admin-controls');
+  const adminMode = get('admin-mode');
+  const schedule = get('schedule');
+  const testStart = get('test-start');
+  const scheduleStatus = get('schedule-status');
+  const date = new Intl.DateTimeFormat('sv-SE', {dateStyle:'medium', timeZone:'Europe/Stockholm'});
+  let portraitPreview = false;
   let game, roundIndex, question, name, letters, photoUrl, previewIndex, generation = 0;
   let submitting = false;
 
@@ -19,8 +26,20 @@ export function mountZooGame(client, root) {
     photoUrl = undefined;
     status.textContent = 'Laddar quizet …';
     loadButton.hidden = true;
-    const {data, error} = await client.rpc('ldv_zoo_my_rounds');
+    const official = await client.rpc('ldv_zoo_my_rounds');
     if (current !== generation) return;
+    const admin = official.data?.preview === true;
+    const test = admin ? await client.rpc('ldv_zoo_test_week') : null;
+    if (current !== generation) return;
+    const {data, error} = admin && !portraitPreview ? test : official;
+    adminControls.hidden = !admin || Boolean(test?.error);
+    if (admin && !test.error) {
+      const displayDay = day => date.format(new Date(day + 'T12:00:00Z'));
+      get('test-dates').textContent = 'Testvecka ' + displayDay(test.data.startsOn) + ' till ' + displayDay(test.data.endsOn);
+      adminMode.textContent = portraitPreview ? 'Tillbaka till testspelet' : 'Förhandsvisa porträtt';
+      testStart.value = test.data.startsOn;
+      testStart.min = test.data.earliestStart;
+    }
     if (error) {
       status.textContent = 'Quizet kunde inte laddas.';
       loadButton.hidden = false;
@@ -35,20 +54,21 @@ export function mountZooGame(client, root) {
       status.textContent = 'Quizet öppnar på avresedagen.';
       return;
     }
-    get('score').textContent = game.preview ? 'Förhandsvisning för administratörer' : 'Din poäng: ' + game.totalPoints;
+    get('score').textContent = game.preview ? 'Förhandsvisning för administratörer' :
+      (game.testWeekId ? 'Dina testpoäng: ' : 'Din poäng: ') + game.totalPoints;
     rounds.replaceChildren();
-    const date = new Intl.DateTimeFormat('sv-SE', {dateStyle:'short', timeZone:'Europe/Stockholm'});
     for (const round of game.rounds) {
       const button = document.createElement('button');
       const completed = round.questions.filter(q => q.answered).length;
       button.type = 'button';
-      button.disabled = !round.isUnlocked;
+      button.disabled = !round.isUnlocked || Boolean(game.testWeekId && game.finished);
       button.textContent = 'Omgång ' + (round.roundIndex + 1) +
         (round.isUnlocked ? (game.preview ? '' : ' · ' + completed + ' av ' + round.questions.length) : ' · öppnar ' + date.format(new Date(round.unlockAt)));
       button.addEventListener('click', () => load(round.roundIndex));
       rounds.append(button);
     }
-    status.textContent = game.rounds.length ? '' : 'Omgångarna är inte klara ännu.';
+    status.textContent = game.testWeekId && game.finished ? 'Testspelet är avslutat.' :
+      (game.rounds.length ? '' : 'Omgångarna är inte klara ännu.');
     const leaderboard = get('leaderboard');
     leaderboard.hidden = !game.finished;
     const scores = get('scores');
@@ -123,17 +143,21 @@ export function mountZooGame(client, root) {
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (game.preview || submitting || !guess.value.trim()) return;
+    if (!game || !question || game.preview || submitting || !guess.value.trim()) return;
     submitting = true;
     get('submit').disabled = true;
     const current = generation;
     try {
-      const {data, error} = await client.rpc('ldv_zoo_submit_answer', {
-        p_question_id:question.questionId, p_guess:guess.value.trim()
-      });
+      const params = {p_question_id:question.questionId, p_guess:guess.value.trim()};
+      const {data, error} = game.testWeekId
+        ? await client.rpc('ldv_zoo_submit_test_answer', {...params,p_week_id:game.testWeekId})
+        : await client.rpc('ldv_zoo_submit_answer', params);
       if (current !== generation) return;
       if (error) {
-        status.textContent = 'Svaret kunde inte visas. Försök igen för att hämta det sparade resultatet.';
+        status.textContent = game.testWeekId && error.code === '22023'
+          ? 'Testomgången är inte längre tillgänglig. Uppdatera quizet.'
+          : 'Svaret kunde inte visas. Försök igen för att hämta det sparade resultatet.';
+        loadButton.hidden = false;
         return;
       }
       status.textContent = '';
@@ -145,7 +169,7 @@ export function mountZooGame(client, root) {
       reveal.focus();
       get('result').textContent = data.correct ? 'Rätt! +1 poäng' : 'Fel svar. 0 poäng';
       animateResult(data.correct);
-      get('score').textContent = 'Din poäng: ' + data.total_points;
+      get('score').textContent = (game.testWeekId ? 'Dina testpoäng: ' : 'Din poäng: ') + data.total_points;
     } finally {
       submitting = false;
       get('submit').disabled = false;
@@ -164,5 +188,28 @@ export function mountZooGame(client, root) {
   });
   next.addEventListener('click', () => load(roundIndex, game.preview ? previewIndex + 1 : 0));
   loadButton.addEventListener('click', () => load(roundIndex, previewIndex));
+  adminMode.addEventListener('click', () => {
+    portraitPreview = !portraitPreview;
+    load();
+  });
+  schedule.addEventListener('submit', async event => {
+    event.preventDefault();
+    const save = get('schedule-save');
+    if (save.disabled) return;
+    save.disabled = true;
+    scheduleStatus.textContent = 'Sparar testveckan …';
+    try {
+      const {error} = await client.rpc('ldv_zoo_schedule_test_week', {p_starts_on:testStart.value});
+      if (error) {
+        scheduleStatus.textContent = 'Testveckan kunde inte sparas. Välj ett startdatum från idag till 23 januari.';
+        return;
+      }
+      portraitPreview = false;
+      await load();
+      scheduleStatus.textContent = 'Testveckan är sparad.';
+    } finally {
+      save.disabled = false;
+    }
+  });
   return () => load();
 }
