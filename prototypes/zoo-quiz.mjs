@@ -303,7 +303,17 @@ export function mountZooGame(client, root) {
       .filter(Boolean).join(' ');
     nameDisplay.append(piece);
     outcome = null;
-    resultDisplay.textContent = correct ? 'Rätt!' : 'Fel svar.';
+    resultDisplay.textContent = correct ? 'Poäng! ' : '';
+    if (!correct) {
+      const description = document.createElement('span');
+      description.className = 'ldv-visually-hidden';
+      description.textContent = 'Fel svar.';
+      resultDisplay.append(description);
+    }
+    const symbol = document.createElement('span');
+    symbol.setAttribute('aria-hidden', 'true');
+    symbol.textContent = correct ? '✅' : '❌';
+    resultDisplay.append(symbol);
     get('score').textContent = (game.testWeekId ? 'Dina testpoäng: ' : 'Din poäng: ') + totalPoints;
     animateResult(correct);
     reveal.hidden = true;
