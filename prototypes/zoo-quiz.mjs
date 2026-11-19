@@ -169,7 +169,7 @@ export function mountZooGame(client, root) {
     status.textContent = '';
     resultDisplay.textContent = '';
     nameDisplay.textContent = '';
-    progress.textContent = 'Fråga ' + (round.questions.indexOf(question) + 1) + ' av ' + round.questions.length;
+    progress.textContent = (round.questions.indexOf(question) + 1) + '/' + round.questions.length;
     form.hidden = Boolean(game.preview);
     feedback.hidden = !game.preview;
     reveal.hidden = true;
