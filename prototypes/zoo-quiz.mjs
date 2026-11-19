@@ -5,6 +5,8 @@ export function mountZooGame(client, root) {
   const form = get('form');
   const portrait = get('portrait');
   const guess = get('guess');
+  const hint = get('hint');
+  const hintText = get('hint-text');
   const reveal = get('reveal');
   const next = get('next');
   const status = get('status');
@@ -166,6 +168,10 @@ export function mountZooGame(client, root) {
     if (current !== generation) return;
     portrait.src = preload.src;
     guess.value = '';
+    hint.hidden = false;
+    hint.disabled = false;
+    hintText.hidden = true;
+    hintText.textContent = '';
     status.textContent = '';
     resultDisplay.textContent = '';
     nameDisplay.textContent = '';
@@ -202,6 +208,27 @@ export function mountZooGame(client, root) {
       }], {duration:550 + Math.random()*350}).finished.then(() => piece.remove());
     }
   }
+
+  hint.addEventListener('click', async () => {
+    if (!question || form.hidden || hint.disabled || hint.hidden || submitting) return;
+    const current = generation;
+    hint.disabled = true;
+    const {data, error} = await client.rpc('ldv_zoo_first_letter_hint', {
+      p_question_id:question.questionId
+    });
+    if (current !== generation || form.hidden) return;
+    hint.disabled = false;
+    if (error || !data) {
+      status.textContent = 'Ledtråden kunde inte visas. Försök igen.';
+      return;
+    }
+    const refocus = document.activeElement === hint;
+    status.textContent = '';
+    hint.hidden = true;
+    hintText.hidden = false;
+    hintText.textContent = 'Förnamnet börjar på ' + data + '.';
+    if (refocus) hintText.focus({preventScroll:true});
+  });
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
