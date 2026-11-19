@@ -482,6 +482,14 @@ main.wrap > header .ldv-header-version{
 #zoo [data-zoo="admin-controls"] details{margin-top:10px}
 #zoo [data-zoo="schedule"]{margin-top:10px}
 #zoo [data-zoo="schedule"] input{font:inherit;padding:7px;width:fit-content}
+.zoo-dialog{box-sizing:border-box;width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 24px);margin:auto;padding:16px 20px 20px;border:0;border-radius:16px;background:#fff;color:#142b60;overflow:auto;overscroll-behavior:contain}
+.zoo-dialog::backdrop{background:#0a1b3cb3}
+.zoo-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.zoo-dialog-header h2{margin:0;font-size:1.25rem}
+.zoo-dialog button{min-height:44px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:9px;background:#eef4fb;color:#142b60;font:inherit;font-weight:700;cursor:pointer}
+.zoo-dialog [data-zoo="guess"]{box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
+#zoo .zoo-dialog .zoo-portrait img{max-height:42dvh}
+#zoo [data-zoo="name"]{font-size:1.25rem;font-weight:750;overflow-wrap:anywhere}
 </style><main class="wrap"><header><button type="button" id="ldv-logo-refresh" class="header-home" aria-label="Uppdatera appen" title="Uppdatera appen"><img src="Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" style="width:176px;height:176px;object-fit:contain"></button><button id="ldv-header-profile" style="position:relative;display:none;flex:0 0 54px;width:54px;height:54px;min-width:54px;max-width:54px;min-height:54px;max-height:54px;padding:0;overflow:hidden;border:0;border-radius:50%;background:transparent;box-shadow:none" type="button" aria-label="Öppna Min profil" title="Min profil"><img id="ldv-header-profile-img" alt="Din profilbild" hidden style="position:absolute;inset:0;width:100%!important;height:100%!important;min-width:100%;min-height:100%;max-width:100%;max-height:100%;object-fit:cover;border-radius:50%;margin:0;padding:0;border:0"><span id="ldv-header-profile-fallback" aria-hidden="true">👤</span></button><span id="ldv-header-profile-name" aria-hidden="true"></span></header><section id="zoo" hidden>
   <div class="zoo-game">
     <h1>Who is Who in the Zoo?</h1>
@@ -501,24 +509,34 @@ main.wrap > header .ldv-header-version{
     </div>
     <p data-zoo="score"></p>
     <div data-zoo="rounds" class="zoo-rounds"></div>
-    <p data-zoo="status" role="status"></p>
-    <button type="button" data-zoo="reload" hidden>Försök igen</button>
-    <div data-zoo="play" hidden>
-      <p data-zoo="progress"></p>
-      <div class="zoo-portrait">
-        <img data-zoo="portrait" alt="Deltagarporträtt">
-        <div data-zoo="effects" aria-hidden="true"></div>
+    <div data-zoo="inline">
+      <div data-zoo="interaction">
+        <p data-zoo="status" role="status"></p>
+        <button type="button" data-zoo="reload" hidden>Försök igen</button>
+        <div data-zoo="play" hidden>
+          <p data-zoo="progress" tabindex="-1"></p>
+          <div class="zoo-portrait">
+            <img data-zoo="portrait" alt="Deltagarporträtt">
+            <div data-zoo="effects" aria-hidden="true"></div>
+          </div>
+          <form data-zoo="form">
+            <label for="zoo-guess">Vad heter personen i förnamn?</label>
+            <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off">
+            <button data-zoo="submit">Svara</button>
+          </form>
+          <p data-zoo="result" role="status"></p>
+          <p data-zoo="name" aria-live="polite"></p>
+          <button type="button" data-zoo="reveal" hidden></button>
+          <button type="button" data-zoo="next" hidden>Fortsätt</button>
+        </div>
       </div>
-      <form data-zoo="form">
-        <label for="zoo-guess">Vad heter personen i förnamn?</label>
-        <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off">
-        <button data-zoo="submit">Svara</button>
-      </form>
-      <p data-zoo="result" role="status"></p>
-      <p data-zoo="name" aria-live="polite"></p>
-      <button type="button" data-zoo="reveal" hidden></button>
-      <button type="button" data-zoo="next" hidden>Fortsätt</button>
     </div>
+    <dialog class="zoo-dialog" data-zoo="dialog" aria-labelledby="zoo-dialog-title">
+      <div class="zoo-dialog-header">
+        <h2 id="zoo-dialog-title" data-zoo="dialog-title"></h2>
+        <button type="button" data-zoo="dialog-close" autofocus>Stäng</button>
+      </div>
+    </dialog>
     <div data-zoo="leaderboard" hidden>
       <h2>Topplista</h2>
       <ol data-zoo="scores"></ol>
@@ -681,7 +699,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=2';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=3';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
