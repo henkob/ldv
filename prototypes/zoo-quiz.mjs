@@ -13,6 +13,7 @@ export function mountZooGame(client, root) {
   const interaction = get('interaction');
   const nameDisplay = get('name');
   const resultDisplay = get('result');
+  const feedback = get('feedback');
   const progress = get('progress');
   const adminControls = get('admin-controls');
   const adminMode = get('admin-mode');
@@ -169,7 +170,8 @@ export function mountZooGame(client, root) {
     resultDisplay.textContent = '';
     nameDisplay.textContent = '';
     progress.textContent = 'Fråga ' + (round.questions.indexOf(question) + 1) + ' av ' + round.questions.length;
-    form.hidden = game.preview;
+    form.hidden = Boolean(game.preview);
+    feedback.hidden = !game.preview;
     reveal.hidden = true;
     next.hidden = !game.preview;
     next.textContent = game.preview ? 'Nästa porträtt' : (finalTestQuestion ? 'Visa resultat' : 'Fortsätt');
@@ -227,6 +229,7 @@ export function mountZooGame(client, root) {
       name = firstName.match(/\P{L}*\p{L}\p{M}*\P{L}*/gu) ?? [firstName];
       letters = 0;
       form.hidden = true;
+      feedback.hidden = false;
       reveal.textContent = name.length === 1 ? 'Visa facit' : 'Visa första bokstaven';
       reveal.hidden = false;
       reveal.focus();
@@ -243,9 +246,12 @@ export function mountZooGame(client, root) {
       reveal.textContent = letters === name.length - 1 ? 'Visa sista bokstaven' : 'Visa nästa bokstav';
       return;
     }
-    const {correct,total_points:totalPoints} = outcome;
+    const {correct, nickname, last_name:lastName, total_points:totalPoints} = outcome;
+    const alias = nickname?.trim();
+    nameDisplay.textContent = [name.join(''), alias ? '”' + alias + '”' : '', lastName?.trim()]
+      .filter(Boolean).join(' ');
     outcome = null;
-    resultDisplay.textContent = correct ? 'Rätt! +1 poäng' : 'Fel svar. 0 poäng';
+    resultDisplay.textContent = correct ? 'Rätt!' : 'Fel svar.';
     get('score').textContent = (game.testWeekId ? 'Dina testpoäng: ' : 'Din poäng: ') + totalPoints;
     animateResult(correct);
     reveal.hidden = true;
