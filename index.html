@@ -565,9 +565,9 @@ main.wrap > header .ldv-header-version{
             </div>
           </div>
           <div class="zoo-answer-actions">
-            <button class="ldv-action-button" type="submit" form="zoo-answer-form" data-zoo="submit"><span class="ldv-action-icon" aria-hidden="true">→</span><span>Svara</span></button>
-            <button class="ldv-action-button" type="button" data-zoo="reveal" hidden><span class="ldv-action-icon" aria-hidden="true">→</span><span data-zoo="reveal-label"></span></button>
-            <button class="ldv-action-button" type="button" data-zoo="next" hidden><span class="ldv-action-icon" aria-hidden="true">→</span><span data-zoo="next-label">Fortsätt</span></button>
+            <button class="ldv-action-button" type="submit" form="zoo-answer-form" data-zoo="submit" data-ldv-action-ready="1"><span>Svara</span></button>
+            <button class="ldv-action-button" type="button" data-zoo="reveal" hidden><span data-zoo="reveal-label"></span></button>
+            <button class="ldv-action-button" type="button" data-zoo="next" hidden><span data-zoo="next-label">Fortsätt</span></button>
           </div>
         </div>
       </div>
@@ -745,7 +745,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=12';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=13';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
