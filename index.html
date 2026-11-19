@@ -479,21 +479,23 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-confetti{position:absolute;top:50%;left:50%;height:7px;width:7px;pointer-events:none}
 #zoo form{display:grid;gap:8px;max-width:320px}
 #zoo [data-zoo="admin-controls"]{margin:16px 0;padding:12px;border:1px solid #dbe4ef;border-radius:12px;}
-.zoo-dialog{box-sizing:border-box;width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 24px);margin:auto;padding:16px 20px 20px;border:0;border-radius:16px;background:#fff;color:#142b60;overflow:auto;overscroll-behavior:contain}
+.zoo-dialog{--zoo-height:min(650px,calc(100dvh - 24px));box-sizing:border-box;height:var(--zoo-height);width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 24px);margin:auto;padding:16px 20px 20px;border:0;border-radius:16px;background:#fff;color:#142b60;overflow:auto;overscroll-behavior:contain}
 .zoo-dialog::backdrop{background:#0a1b3cb3}
 .zoo-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .zoo-dialog-header h2{margin:0;font-size:1.25rem}
 .zoo-dialog button{min-height:44px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:9px;background:#eef4fb;color:#142b60;font:inherit;font-weight:700;cursor:pointer}
 #zoo .zoo-dialog [data-zoo="form"]{margin-inline:auto;text-align:center}
 .zoo-dialog [data-zoo="guess"]{text-align:center;box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
-#zoo .zoo-dialog .zoo-portrait img{max-height:42dvh}
-.zoo-dialog[data-keyboard]{position:fixed;inset:var(--zoo-keyboard-top) 0 auto;margin:0 auto;max-height:var(--zoo-keyboard-height);padding-block:10px 12px}
+#zoo .zoo-dialog .zoo-portrait{height:clamp(110px,calc(var(--zoo-height) - 315px),300px)}
+#zoo .zoo-dialog .zoo-portrait img{height:100%;max-height:none}
+#zoo .zoo-dialog [data-zoo="feedback"]{display:grid;justify-items:center;gap:6px;text-align:center}
+#zoo .zoo-dialog [data-zoo="feedback"] p{margin:0}
+#zoo .zoo-dialog [data-zoo="name"]{min-height:2.5em;line-height:1.25}
+#zoo .zoo-dialog [data-zoo="result"]{min-height:1.5em}
+.zoo-dialog[data-keyboard]{--zoo-height:var(--zoo-keyboard-height);position:fixed;inset:var(--zoo-keyboard-top) 0 auto;margin:0 auto;max-height:var(--zoo-keyboard-height);padding-block:10px 12px}
 .zoo-dialog[data-keyboard] .zoo-dialog-header{margin-bottom:4px}
 #zoo .zoo-dialog[data-keyboard] [data-zoo="progress"]{margin:4px 0}
-#zoo .zoo-dialog[data-keyboard] .zoo-portrait{margin:6px auto}
-#zoo .zoo-dialog[data-keyboard] .zoo-portrait img{max-height:clamp(80px,calc(var(--zoo-keyboard-height) - 235px),220px)}
-#zoo .zoo-dialog[data-keyboard] [data-zoo="result"]:empty,
-#zoo .zoo-dialog[data-keyboard] [data-zoo="name"]:empty{display:none}
+#zoo .zoo-dialog[data-keyboard] .zoo-portrait{height:clamp(72px,calc(var(--zoo-height) - 235px),220px);margin:6px auto}
 #zoo [data-zoo="name"]{font-size:1.25rem;font-weight:750;overflow-wrap:anywhere}
 #zoo .zoo-dialog [data-zoo="name"], #zoo .zoo-dialog button{text-align:center}
 #zoo .zoo-dialog [data-zoo="reveal"], #zoo .zoo-dialog [data-zoo="next"]{display:block;margin-inline:auto;max-width:100%}
@@ -521,14 +523,16 @@ main.wrap > header .ldv-header-version{
             <div data-zoo="effects" aria-hidden="true"></div>
           </div>
           <form data-zoo="form">
-            <label for="zoo-guess">Vad heter personen i förnamn?</label>
+            <label for="zoo-guess">Vad heter personen i förnamn eller smeknamn?</label>
             <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
             <button data-zoo="submit">Svara</button>
           </form>
-          <p data-zoo="result" role="status"></p>
-          <p data-zoo="name" aria-live="polite"></p>
-          <button type="button" data-zoo="reveal" hidden></button>
-          <button type="button" data-zoo="next" hidden>Fortsätt</button>
+          <div data-zoo="feedback" hidden>
+            <p data-zoo="name" aria-live="polite"></p>
+            <p data-zoo="result" role="status"></p>
+            <button type="button" data-zoo="reveal" hidden></button>
+            <button type="button" data-zoo="next" hidden>Fortsätt</button>
+          </div>
         </div>
       </div>
     </div>
@@ -702,7 +706,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=5';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=6';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
