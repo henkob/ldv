@@ -474,44 +474,51 @@ main.wrap > header .ldv-header-version{
 @media(min-width:700px){#podden > .ldv-page-hero{height:205px!important}}
 #ldv-menu-zoo[hidden], #zoo [hidden]{display:none!important}
 #zoo .zoo-rounds{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-#zoo .zoo-portrait{position:relative;width:min(100%,320px);margin:14px auto}
+#zoo [data-zoo="play"]{width:min(100%,300px);margin-inline:auto}
+#zoo .zoo-portrait{position:relative;width:100%;margin:14px 0}
 #zoo .zoo-portrait img{display:block;width:100%;max-height:440px;object-fit:contain;border-radius:12px}
 #zoo .zoo-confetti{position:absolute;top:50%;left:50%;height:7px;width:7px;pointer-events:none}
-#zoo form{display:grid;gap:8px;max-width:320px}
-#zoo .zoo-answer-slot{display:grid;box-sizing:border-box;block-size:6.25rem;padding-inline:4px;overflow-y:auto;align-content:safe center}
-#zoo .zoo-answer-actions{display:grid;justify-items:center}
-#zoo .zoo-answer-actions button{box-sizing:border-box;width:min(100%,16rem);min-height:44px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:9px;background:#eef4fb;color:#142b60;font:inherit;font-weight:700;text-align:center;cursor:pointer}
-#zoo [data-zoo="play"]:has([data-zoo="form"][hidden]) .zoo-hint{display:none}
-#zoo .zoo-hint{display:grid;min-height:44px;place-items:center;text-align:center}
-#zoo .zoo-hint button{min-height:44px;background:transparent;border:0;color:#16477e;text-decoration:underline;font:inherit;font-weight:700;cursor:pointer}
-#zoo .zoo-hint p{margin:0}
+#zoo [data-zoo="form"]{display:grid;gap:4px;width:100%;margin:0;text-align:center}
+#zoo .zoo-answer-slot{display:grid;box-sizing:border-box;block-size:7.25rem;overflow-y:auto;align-content:safe center}
+#zoo .zoo-answer-actions{display:grid}
+#zoo .zoo-answer-actions button{box-sizing:border-box;width:100%;min-height:44px;padding:6px 12px;text-align:center;cursor:pointer}
+#zoo .zoo-answer-label{display:flex;align-items:center;justify-content:center;gap:6px}
+#zoo .zoo-answer-label button{width:36px;height:36px;min-height:36px;flex:none;padding:0;border:0;background:transparent;color:#142b60;cursor:pointer}
+#zoo .zoo-info-icon{display:grid;place-items:center;width:22px;height:22px;margin:auto;border:1px solid currentColor;border-radius:50%;font:700 14px/1 system-ui}
+#zoo .zoo-hint-slot{block-size:1.5rem}
+#zoo .zoo-hint{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transform:translateY(-4px)}
+#zoo .zoo-hint[data-open]{grid-template-rows:1fr;opacity:1;visibility:visible;transform:none}
+#zoo .zoo-hint p{overflow:hidden;min-height:0;margin:0;font-size:.875rem}
 #zoo [data-zoo="admin-controls"]{margin:16px 0;padding:12px;border:1px solid #dbe4ef;border-radius:12px;}
 .zoo-dialog{--zoo-height:min(650px,calc(100dvh - 24px));box-sizing:border-box;height:var(--zoo-height);width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 24px);margin:auto;padding:16px 20px 20px;border:0;border-radius:16px;background:#fff;color:#142b60;overflow:auto;overscroll-behavior:contain}
 .zoo-dialog::backdrop{background:#0a1b3cb3}
 .zoo-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.zoo-dialog-header h2{margin:0;font-size:1.25rem}
+.zoo-dialog-heading{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap}
+.zoo-dialog-header h2{margin:0;font-size:clamp(1.2rem,5.8vw,1.65rem);line-height:1.05}
+.zoo-dialog-header h2:focus{outline:none}
+.zoo-dialog-counter{font-variant-numeric:tabular-nums;font-size:.875rem;white-space:nowrap}
+#zoo .zoo-dialog [data-zoo="progress"]{display:none}
 .zoo-dialog button{min-height:44px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:9px;background:#eef4fb;color:#142b60;font:inherit;font-weight:700;cursor:pointer}
-#zoo .zoo-dialog [data-zoo="form"]{margin-inline:auto;text-align:center}
-.zoo-dialog [data-zoo="guess"]{text-align:center;box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
+#zoo [data-zoo="guess"]{margin:0;max-width:none;text-align:center;box-sizing:border-box;width:100%;min-height:44px;padding:6px 10px;border:1px solid #8497b5;border-radius:8px;font-size:16px}
 #zoo .zoo-dialog .zoo-portrait{height:clamp(110px,calc(var(--zoo-height) - 315px),300px)}
-#zoo .zoo-dialog .zoo-portrait img{height:100%;max-height:none}
+#zoo .zoo-dialog .zoo-portrait img{height:100%;max-height:none;background:#edf3fa}
 #zoo .zoo-dialog [data-zoo="feedback"]{display:grid;justify-items:center;gap:6px;text-align:center}
 #zoo .zoo-dialog [data-zoo="feedback"] p{margin:0}
 #zoo .zoo-dialog [data-zoo="name"]{min-height:2.5em;line-height:1.25}
 #zoo .zoo-dialog [data-zoo="result"]{min-height:1.5em}
 .zoo-dialog[data-keyboard]{--zoo-height:var(--zoo-keyboard-height);position:fixed;inset:var(--zoo-keyboard-top) 0 auto;margin:0 auto;max-height:var(--zoo-keyboard-height);padding-block:10px 12px}
 .zoo-dialog[data-keyboard] .zoo-dialog-header{margin-bottom:4px}
-#zoo .zoo-dialog[data-keyboard] [data-zoo="progress"]{margin:4px 0}
 #zoo .zoo-dialog[data-keyboard] .zoo-portrait{height:clamp(72px,calc(var(--zoo-height) - 300px),220px);margin:6px auto}
 #zoo [data-zoo="name"]{font-size:1.5rem;font-weight:750;overflow-wrap:anywhere}
 #zoo .zoo-dialog [data-zoo="name"], #zoo .zoo-dialog button{text-align:center}
 @keyframes zoo-fade-in{from{opacity:.35}to{opacity:1}}
 @keyframes zoo-soft-in{from{opacity:.45;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){
+  #zoo .zoo-hint{transition:grid-template-rows .38s ease,opacity .3s ease,transform .38s ease,visibility 0s linear .38s}
+  #zoo .zoo-hint[data-open]{transition-delay:0s}
   #zoo .zoo-letter,
   #zoo .zoo-answer-actions button:not([hidden]){animation:zoo-fade-in .3s ease both}
   #zoo [data-zoo="play"]:not([hidden]) .zoo-portrait,
-  #zoo [data-zoo="hint-text"]:not([hidden]),
   #zoo [data-zoo="result"]:not(:empty){animation:zoo-soft-in .38s ease both}
 }
 #zoo .zoo-daily-results{list-style:none;margin:12px 0 24px;padding:0}
@@ -532,14 +539,22 @@ main.wrap > header .ldv-header-version{
         <p data-zoo="status" role="status"></p>
         <button type="button" data-zoo="reload" hidden>Försök igen</button>
         <div data-zoo="play" hidden>
-          <p data-zoo="progress" tabindex="-1"></p>
+          <p data-zoo="progress"></p>
           <div class="zoo-portrait">
             <img data-zoo="portrait" alt="Deltagarporträtt">
             <div data-zoo="effects" aria-hidden="true"></div>
           </div>
           <div class="zoo-answer-slot">
             <form id="zoo-answer-form" data-zoo="form">
-              <label for="zoo-guess">Förnamn eller smeknamn?</label>
+              <div class="zoo-answer-label">
+                <label for="zoo-guess">Förnamn eller smeknamn?</label>
+                <button type="button" data-zoo="hint" aria-label="Visa ledtråd" aria-expanded="false" aria-controls="zoo-first-letter"><span class="zoo-info-icon" aria-hidden="true">i</span></button>
+              </div>
+              <div class="zoo-hint-slot">
+                <div class="zoo-hint" data-zoo="hint-disclosure">
+                  <p id="zoo-first-letter" data-zoo="hint-text" role="status"></p>
+                </div>
+              </div>
               <input id="zoo-guess" data-zoo="guess" required maxlength="100" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
             </form>
             <div data-zoo="feedback" hidden>
@@ -548,21 +563,20 @@ main.wrap > header .ldv-header-version{
             </div>
           </div>
           <div class="zoo-answer-actions">
-            <button type="submit" form="zoo-answer-form" data-zoo="submit">Svara</button>
-            <button type="button" data-zoo="reveal" hidden></button>
-            <button type="button" data-zoo="next" hidden>Fortsätt</button>
-          </div>
-          <div class="zoo-hint">
-            <button type="button" data-zoo="hint">Visa ledtråd</button>
-            <p data-zoo="hint-text" role="status" tabindex="-1" hidden></p>
+            <button class="ldv-action-button" type="submit" form="zoo-answer-form" data-zoo="submit"><span class="ldv-action-icon" aria-hidden="true">→</span><span>Svara</span></button>
+            <button class="ldv-action-button" type="button" data-zoo="reveal" hidden><span class="ldv-action-icon" aria-hidden="true">→</span><span data-zoo="reveal-label"></span></button>
+            <button class="ldv-action-button" type="button" data-zoo="next" hidden><span class="ldv-action-icon" aria-hidden="true">→</span><span data-zoo="next-label">Fortsätt</span></button>
           </div>
         </div>
       </div>
     </div>
-    <dialog class="zoo-dialog" data-zoo="dialog" aria-labelledby="zoo-dialog-title">
+    <dialog class="zoo-dialog" data-zoo="dialog" aria-labelledby="zoo-dialog-title" aria-describedby="zoo-dialog-progress">
       <div class="zoo-dialog-header">
-        <h2 id="zoo-dialog-title" data-zoo="dialog-title"></h2>
-        <button type="button" data-zoo="dialog-close" autofocus>Stäng</button>
+        <div class="zoo-dialog-heading">
+          <h2 id="zoo-dialog-title" data-zoo="dialog-title" tabindex="-1"></h2>
+          <span id="zoo-dialog-progress" class="zoo-dialog-counter" data-zoo="dialog-progress"></span>
+        </div>
+        <button type="button" data-zoo="dialog-close" class="profile-close" aria-label="Stäng" autofocus>×</button>
       </div>
     </dialog>
     <div data-zoo="leaderboard" hidden>
@@ -729,7 +743,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=10';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=11';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
