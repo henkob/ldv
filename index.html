@@ -473,6 +473,17 @@ main.wrap > header .ldv-header-version{
 #podden > .ldv-page-panel{margin-top:-18px!important}
 @media(min-width:700px){#podden > .ldv-page-hero{height:205px!important}}
 #ldv-menu-zoo[hidden], #zoo [hidden]{display:none!important}
+#zoo .zoo-heading{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+#zoo .zoo-heading h1{margin:0}
+#zoo-rules-toggle{display:grid;place-items:center;padding:0;line-height:1}
+#zoo-rules-toggle[aria-expanded="true"]{background:#e7edf7}
+#zoo .zoo-rules-clip{min-height:0;overflow:hidden}
+#zoo .zoo-rules-card{margin:0 0 12px;padding:16px;text-align:left;border:1px solid #d9e3f1;border-radius:12px;background:#fff;font-size:.9375rem;line-height:1.5}
+#zoo .zoo-rules-card h2{margin:0 0 4px;font-size:1.25rem}
+#zoo .zoo-rules-card p{margin:0}
+#zoo .zoo-rules-card p + :is(p,h2){margin-top:10px}
+#zoo .zoo-test-rules{display:none}
+#zoo .zoo-game:has(> [data-zoo="admin-controls"]:not([hidden])) .zoo-test-rules{display:block}
 #zoo .zoo-rounds{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 #zoo [data-zoo="play"]{width:min(100%,300px);margin-inline:auto}
 #zoo .zoo-portrait{position:relative;width:100%;margin:14px 0}
@@ -487,8 +498,8 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-answer-label button[aria-expanded="true"]{color:#846012}
 #zoo .zoo-rookie-badge{position:absolute;right:10px;bottom:10px;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff;color:#142b60;box-shadow:0 2px 7px #142b6040;font-size:23px;line-height:1;pointer-events:none}
 #zoo .zoo-hint-slot{block-size:1.5rem}
-#zoo .zoo-hint{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transform:translateY(-4px)}
-#zoo .zoo-hint[data-open]{grid-template-rows:1fr;opacity:1;visibility:visible;transform:none}
+#zoo :is(.zoo-hint,.zoo-rules){display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transform:translateY(-4px)}
+#zoo :is(.zoo-hint,.zoo-rules)[data-open]{grid-template-rows:1fr;opacity:1;visibility:visible;transform:none}
 #zoo .zoo-hint p{overflow:hidden;min-height:0;margin:0;font-size:.875rem}
 #zoo [data-zoo="admin-controls"]{margin:16px 0;padding:12px;border:1px solid #dbe4ef;border-radius:12px;}
 .zoo-dialog{--zoo-height:min(650px,calc(100dvh - 24px));box-sizing:border-box;height:var(--zoo-height);width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 24px);margin:auto;padding:16px 20px 20px;border:0;border-radius:16px;background:#fff;color:#142b60;overflow:auto;overscroll-behavior:contain}
@@ -515,8 +526,8 @@ main.wrap > header .ldv-header-version{
 @keyframes zoo-fade-in{from{opacity:.35}to{opacity:1}}
 @keyframes zoo-soft-in{from{opacity:.45;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){
-  #zoo .zoo-hint{transition:grid-template-rows .38s ease,opacity .3s ease,transform .38s ease,visibility 0s linear .38s}
-  #zoo .zoo-hint[data-open]{transition-delay:0s}
+  #zoo :is(.zoo-hint,.zoo-rules){transition:grid-template-rows .38s ease,opacity .3s ease,transform .38s ease,visibility 0s linear .38s}
+  #zoo :is(.zoo-hint,.zoo-rules)[data-open]{transition-delay:0s}
   #zoo .zoo-letter,
   #zoo .zoo-answer-actions button:not([hidden]){animation:zoo-fade-in .3s ease both}
   #zoo [data-zoo="play"]:not([hidden]) .zoo-portrait,
@@ -529,7 +540,24 @@ main.wrap > header .ldv-header-version{
 #zoo .zoo-daily-results strong{min-width:6ch;text-align:right;font-variant-numeric:tabular-nums}
 </style><main class="wrap"><header><button type="button" id="ldv-logo-refresh" class="header-home" aria-label="Uppdatera appen" title="Uppdatera appen"><img src="Logos/LDV_St_Anton_2027_intro_korrigerad.gif" alt="La Dolce Vita St. Anton 2027" style="width:176px;height:176px;object-fit:contain"></button><button id="ldv-header-profile" style="position:relative;display:none;flex:0 0 54px;width:54px;height:54px;min-width:54px;max-width:54px;min-height:54px;max-height:54px;padding:0;overflow:hidden;border:0;border-radius:50%;background:transparent;box-shadow:none" type="button" aria-label="Öppna Min profil" title="Min profil"><img id="ldv-header-profile-img" alt="Din profilbild" hidden style="position:absolute;inset:0;width:100%!important;height:100%!important;min-width:100%;min-height:100%;max-width:100%;max-height:100%;object-fit:cover;border-radius:50%;margin:0;padding:0;border:0"><span id="ldv-header-profile-fallback" aria-hidden="true">👤</span></button><span id="ldv-header-profile-name" aria-hidden="true"></span></header><section id="zoo" hidden>
   <div class="zoo-game">
-    <h1>Who is Who in the Zoo</h1>
+    <div class="zoo-heading">
+      <h1>Who is Who in the Zoo</h1>
+      <button type="button" id="zoo-rules-toggle" aria-label="Spelregler" aria-expanded="false" aria-controls="zoo-rules">i</button>
+    </div>
+    <div id="zoo-rules" class="zoo-rules" inert>
+      <div class="zoo-rules-clip">
+        <div class="zoo-rules-card">
+          <h2>Så spelar du</h2>
+          <p>Vem är det på bilden? Skriv personens förnamn eller registrerade smeknamn. Du har ett försök per bild. Spelet godkänner vissa stavningsvarianter och kan godkänna ett enstaka stavfel i namn på minst fem bokstäver.</p>
+          <p>Glödlampan visar första bokstaven i förnamnet utan poängavdrag. 🐣 betyder att personen är med på sin första LDV-resa.</p>
+          <p>När du har svarat kan du visa förnamnet bokstav för bokstav. Vid sista bokstaven visas facit med hela namnet och om du fick rätt.</p>
+          <h2>Poäng och topplista</h2>
+          <p>Varje rätt svar ger en poäng. Tävlingen har sex omgångar med 14 bilder i varje. Du kan få högst 84 poäng.</p>
+          <p>En ny omgång öppnar varje dag från 30 januari till 4 februari. Du kan pausa och fortsätta med öppnade omgångar fram till midnatt natten till 5 februari. Då stänger tävlingen och du ser topplistan och ett diagram över dina rätt per dag.</p>
+          <p class="zoo-test-rules">I administratörstestet kan du spela alla omgångar direkt. Resultatet visas när du har svarat på alla bilder och testpoängen räknas separat.</p>
+        </div>
+      </div>
+    </div>
     <div data-zoo="admin-controls" hidden>
       <button type="button" data-zoo="admin-mode">Förhandsvisa porträtt</button>
     </div>
@@ -680,7 +708,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
 #ldv-gate-version{position:absolute;bottom:7px;left:18px;font-size:10px!important;margin:0!important}
 #ldv-gate-settings{position:fixed;right:max(22px,env(safe-area-inset-right));top:max(22px,env(safe-area-inset-top));z-index:2;color:white;background:#102d6299;border:1px solid #ffffff88;border-radius:50%;width:44px;height:44px;display:grid;place-items:center;text-decoration:none;box-shadow:0 2px 10px #001a3b55}
 #ldv-gate-settings svg{width:25px;height:25px}
-#ldv-email-info{width:36px;height:36px;flex:none;border:2px solid #142b60;border-radius:50%;background:white;color:#142b60;font-size:22px;font-weight:800;cursor:pointer}
+#ldv-email-info,#zoo-rules-toggle{width:36px;height:36px;flex:none;border:2px solid #142b60;border-radius:50%;background:white;color:#142b60;font-size:22px;font-weight:800;cursor:pointer}
 #ldv-email-help{margin:10px 0;padding:12px;text-align:left;border:1px solid #d9e3f1;border-radius:12px;background:white;box-shadow:0 8px 24px #13265322;font-size:14px;line-height:1.45}
 #ldv-gate-panel #ldv-login-msg{font-size:14px;line-height:1.4}
 #ldv-gate-panel #ldv-code{font-size:clamp(18px,5vw,24px)!important;letter-spacing:.2em!important}
@@ -771,6 +799,13 @@ const spinner=document.getElementById('ldv-gate-spinner');
 function showGateResult(){spinner.hidden=true;spinner.style.display='none';document.getElementById('ldv-gate-panel').style.textAlign='center'}
 
 const infoButton=document.getElementById('ldv-email-info'),infoHelp=document.getElementById('ldv-email-help');infoButton.addEventListener('click',()=>{const expanded=infoHelp.classList.toggle('ldv-help-open');infoButton.setAttribute('aria-expanded',String(expanded));});
+const zooRulesToggle = document.getElementById('zoo-rules-toggle');
+const zooRules = document.getElementById('zoo-rules');
+zooRulesToggle.addEventListener('click', () => {
+  const expanded = zooRules.toggleAttribute('data-open');
+  zooRules.inert = !expanded;
+  zooRulesToggle.setAttribute('aria-expanded', String(expanded));
+});
 const codeForm=document.getElementById('ldv-code-form'),codeInput=document.getElementById('ldv-code');let loginEmail='';
 form.addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('ldv-email').value.trim().toLowerCase();const button=document.getElementById('ldv-send-code');button.disabled=true;status.textContent='Skickar kod …';const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:appUrl,shouldCreateUser:true}});button.disabled=false;if(error){status.textContent='Kunde inte skicka koden. Försök igen eller kontakta reseledningen.';return}loginEmail=email;form.style.display='none';codeForm.style.display='block';codeInput.value='';status.textContent='Om adressen är registrerad skickas en åttasiffrig kod. Kopiera koden från mejlet och klistra in den här.';codeInput.focus()});
 codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,8)});
