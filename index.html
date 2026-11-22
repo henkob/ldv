@@ -60,6 +60,92 @@
 #ldv-consent-settings{position:fixed;bottom:8px;left:8px;z-index:1000;font:11px system-ui,sans-serif;border:1px solid #a9b9d1;background:#fff;color:#14214f;border-radius:8px;padding:5px 8px;opacity:.86}
 </style>
 <!-- End LDV consent -->
+<!-- LDV: central, consent-aware interaction analytics for participant app -->
+<script>
+(function(){
+  'use strict';
+  var lastPage='';
+  var sections=['hem','program','deltagare','resinfo','mer','zoo'];
+  function allowed(){return window.ldvAnalyticsAllowed===true}
+  function send(name,params){
+    if(!allowed())return;
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push(Object.assign({event:name,app_area:'participant'},params||{}));
+  }
+  function identifier(el){
+    if(!el)return '';
+    var raw=el.getAttribute('data-analytics')||el.getAttribute('data-go')||el.id||'';
+    if(!raw){
+      var cls=['home-feature','quick-card','pod-play','pod-download','pod-back','pod-forward','pod-heading','travel-card','day','zoo-start','zoo-hint','zoo-submit'];
+      raw=cls.find(function(c){return el.classList.contains(c)})||'';
+    }
+    // Only technical identifiers: never send displayed text, names, form values or URLs.
+    return /^[a-zA-Z0-9_-]{1,80}$/.test(raw)?raw:'';
+  }
+  function sectionOf(el){
+    var section=el&&el.closest('main section[id]');
+    return section&&sections.indexOf(section.id)>=0?section.id:(document.getElementById('ldv-gate')?'login':'app');
+  }
+  function visibleSection(){
+    if(document.getElementById('ldv-gate'))return '';
+    for(var i=0;i<sections.length;i++){
+      var el=document.getElementById(sections[i]);
+      if(el&&el.closest('main')&&!el.hidden)return sections[i];
+    }
+    return '';
+  }
+  function pageview(){
+    var current=visibleSection();
+    if(!current||current===lastPage)return;
+    lastPage=current;
+    // SPA virtual views use a distinct path; GTM must not duplicate them.
+    send('ldv_virtual_page_view',{
+      page_name:current,
+      page_path:'/app/'+current,
+      page_location:location.origin+'/app/'+current,
+      page_title:'LDV | '+current
+    });
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('button,a,summary,[role="button"],[data-go]');
+    if(!el||el.closest('#ldv-consent-panel,#ldv-consent-settings'))return;
+    if(el.closest('form')||el.matches('input,[type="submit"]')||el.closest('#ldv-code-form,#ldv-email-form'))return;
+    var type=el.matches('a')?'link':el.matches('summary')?'accordion':el.hasAttribute('data-go')?'navigation':'button';
+    var id=identifier(el);
+    // Unidentified dynamic controls can contain participant names; skip them.
+    if(!id)return;
+    send('ldv_interaction',{section:sectionOf(el),element_type:type,element_name:id,action:'click'});
+  },true);
+  document.addEventListener('toggle',function(e){
+    var el=e.target;
+    if(!(el instanceof HTMLDetailsElement))return;
+    var id=identifier(el)||identifier(el.querySelector('summary'));
+    if(!id)return;
+    send('ldv_accordion',{section:sectionOf(el),element_name:id,action:el.open?'open':'close'});
+  },true);
+  document.addEventListener('play',function(e){
+    var audio=e.target;
+    if(!(audio instanceof HTMLMediaElement))return;
+    var episode=audio.closest('.pod-episode');
+    if(!episode)return;
+    send('ldv_media',{section:'pod',element_name:identifier(episode)||'pod_episode',action:'play'});
+  },true);
+  function init(){
+    var main=document.querySelector('main.wrap');
+    if(!main)return;
+    new MutationObserver(pageview).observe(main,{subtree:true,attributes:true,attributeFilter:['hidden']});
+    pageview();
+    document.addEventListener('click',function(){setTimeout(pageview,0)},true);
+    window.addEventListener('pageshow',pageview);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  window.ldvTrackEvent=function(action,element,section){
+    if(!/^[a-zA-Z0-9_-]{1,80}$/.test(action)||!/^[a-zA-Z0-9_-]{1,80}$/.test(element))return;
+    send('ldv_feature',{action:action,element_name:element,section:/^[a-zA-Z0-9_-]{1,80}$/.test(section||'')?section:'app'});
+  };
+})();
+</script>
+<!-- End LDV interaction analytics -->
 <meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000080"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="LDV"><meta name="application-name" content="LDV"><link rel="icon" href="./favicons/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="./favicons/favicon.svg"><link rel="icon" type="image/png" sizes="96x96" href="./favicons/favicon-96x96.png"><link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-touch-icon.png"><link rel="manifest" href="./favicons/site.webmanifest"><title>LDV</title></head><style>:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101d4b;background:#eaf5ff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#d5ebff 0%,#eaf5ff 50%,#d7e8ff 100%)}button,input{font:inherit}button{cursor:pointer}.wrap{max-width:560px;margin:auto;padding:0 20px 130px;min-height:100vh}header{height:96px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}header img{width:112px!important;height:86px!important;filter:drop-shadow(0 3px 8px #ffffff99)}h1{font-size:clamp(30px,7vw,40px);letter-spacing:-.04em;margin:10px 0}h2{font-size:24px;letter-spacing:-.035em;margin:10px 0}p{line-height:1.5}.muted{color:#566b91}.card{background:#ffffffde;border:1px solid #ffffffc9;border-radius:17px;padding:20px;margin:15px 0;box-shadow:0 12px 32px #345e9d13;backdrop-filter:blur(14px)}.tag{color:#9147f4;font-size:12px;font-weight:850;letter-spacing:.11em}.hero{height:390px;margin:-96px -20px 0;padding:0 28px 46px;display:flex;flex-direction:column;justify-content:flex-end;color:white;background:linear-gradient(180deg,#0d42791a 0%,#0a2b5d05 45%,#071c4bba 100%),url('https://images.unsplash.com/photo-1517299321609-52687d1bc55a?auto=format&fit=crop&w=1300&q=85') center/cover}.hero h1{font-size:42px;font-weight:450;text-shadow:0 2px 18px #001b4888}.hero h1:after{content:"";display:block;width:95px;height:5px;border-radius:9px;background:#9147f4;transform:rotate(-3deg);margin-top:6px}.hero p{margin:0;color:#ffffffed}.home-feature{position:relative;margin-top:-24px;display:grid;grid-template-columns:1.15fr 1fr;gap:12px;align-items:stretch;padding:20px;z-index:1}.home-feature h2{font-size:clamp(23px,5vw,33px);line-height:1.06;margin:13px 0}.feature-img{width:100%;height:100%;min-height:188px;object-fit:cover;border-radius:14px}.feature-meta{display:flex;gap:8px;align-items:center;margin:12px 0;color:#3b5180;font-size:13px}.feature-meta span{color:#7948df;font-size:19px}.feature-note{font-size:12px;color:#566b91}.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.quick-grid button{background:#ffffffcc;border:1px solid white;box-shadow:0 7px 18px #46669b12;border-radius:15px;min-height:92px;padding:12px 3px;font-weight:700;color:#14214f;font-size:12px}.quick-grid span{display:block;font-size:30px;color:#8548ef;margin-bottom:8px}.now{display:flex;align-items:center;gap:14px;overflow:hidden}.now .symbol{font-size:32px;background:#e4efff;padding:14px;border-radius:50%}.now p{margin:4px 0}.section-head{display:flex;justify-content:space-between;align-items:center;margin-top:22px}.section-head button{border:0;background:none;color:#8843ee;font-size:13px;font-weight:800}.highlights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.highlight{position:relative;min-height:150px;border-radius:12px;overflow:hidden;background:#163663;color:white}.highlight img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}.highlight:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 20%,#071a4edb)}.highlight div{position:absolute;z-index:1;bottom:12px;left:10px;right:5px}.highlight strong{font-size:14px}.highlight small{display:block;margin-top:3px}.nav{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);width:min(94%,540px);display:grid;grid-template-columns:repeat(5,1fr);background:#fffffff0;backdrop-filter:blur(22px);border:1px solid white;border-radius:22px;padding:8px;box-shadow:0 12px 42px #213f8550;z-index:10}.nav button{border:0;background:transparent;border-radius:17px;padding:9px 1px;color:#152653;font-size:11px}.nav button.active{background:#e8e1ff;color:#713cf0;font-weight:800}.nav span{display:block;font-size:24px;margin-bottom:3px}.btn{background:#8746ed;color:white;border:0;border-radius:12px;padding:13px 17px;font-weight:700}input{width:100%;padding:8px;border:1px solid #dce5f0;border-radius:5px}section[hidden]{display:none}.day{padding:16px 18px}.day summary{font-weight:750;cursor:pointer}#program,#deltagare,#resinfo,#mer{padding-top:12px}@media(min-width:700px){.hero{border-radius:0 0 20px 20px;margin-left:0;margin-right:0}.wrap{padding-left:20px;padding-right:20px}.home-feature{margin-left:15px;margin-right:15px}}/* LDV 2027: mobile event design based on original LDV identity */
 :root{--ldv-navy:#142b60;--ldv-blue:#284a8c;--ldv-yellow:#f4d34d;--ldv-red:#d9414b;--ldv-ice:#f1f6fd;--ldv-ink:#142039;color:var(--ldv-ink);background:var(--ldv-ice)}
 body{background:radial-gradient(ellipse at 90% 4%,#dce9fa 0,transparent 38%),radial-gradient(ellipse at 0% 45%,#dbe9fb 0,transparent 48%),#f5f8fd}
