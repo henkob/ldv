@@ -1,5 +1,6 @@
 export function mountZooGame(client, root) {
   const get = name => root.querySelector('[data-zoo="' + name + '"]');
+  const track = (action) => window.ldvTrackEvent?.(action, 'the_zoo', 'zoo');
   const rounds = get('rounds');
   const play = get('play');
   const form = get('form');
@@ -103,6 +104,7 @@ export function mountZooGame(client, root) {
         (round.isUnlocked ? (game.preview ? '' : ' · ' + completed + ' av ' + round.questions.length) : ' · öppnar ' + date.format(new Date(round.unlockAt)));
       button.dataset.zooRound = round.roundIndex;
       button.addEventListener('click', () => {
+        track('round_open');
         if (game.testWeekId) {
           dialogRound = round.roundIndex;
           const scheduled = official.data?.rounds?.find(item => item.roundIndex === dialogRound);
@@ -248,6 +250,7 @@ export function mountZooGame(client, root) {
     status.textContent = '';
     setHintExpanded(true);
     hintText.textContent = 'Förnamnet börjar på ' + data + '.';
+    track('hint_used');
   });
 
   form.addEventListener('submit', async event => {
@@ -272,6 +275,7 @@ export function mountZooGame(client, root) {
       status.textContent = '';
       loadButton.hidden = true;
       outcome = data;
+      track('answer_submitted');
       const firstName = data.first_name.trim().normalize('NFC');
       name = firstName.match(/\P{L}*\p{L}\p{M}*\P{L}*/gu) ?? [firstName];
       letters = 0;
@@ -298,6 +302,7 @@ export function mountZooGame(client, root) {
       return;
     }
     const {correct, nickname, last_name:lastName, total_points:totalPoints} = outcome;
+    track(correct ? 'answer_correct' : 'answer_incorrect');
     const alias = nickname?.trim();
     piece.textContent = [piece.textContent, alias ? '”' + alias + '”' : '', lastName?.trim()]
       .filter(Boolean).join(' ');
@@ -321,6 +326,7 @@ export function mountZooGame(client, root) {
     next.focus({preventScroll:true});
   });
   next.addEventListener('click', () => {
+    track('next_question');
     if (finalTestQuestion && dialog.open) {
       dialog.close();
       return;
