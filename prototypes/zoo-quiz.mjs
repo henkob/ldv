@@ -34,6 +34,7 @@ export function mountZooGame(client, root) {
   let portraitPreview = false;
   let game, roundIndex, question, outcome, name, letters, photoUrl, previewIndex, dialogRound, finalTestQuestion, generation = 0;
   let submitting = false;
+  const unavailable = new Set();
   const viewport = window.visualViewport;
   let openViewportHeight = 0;
 
@@ -86,6 +87,8 @@ export function mountZooGame(client, root) {
       return;
     }
     game = data;
+    for (const round of game.rounds ?? []) round.questions = round.questions.filter(q => !unavailable.has(q.questionId));
+    if (game.testWeekId && game.rounds.length === 6 && game.rounds.every(r => r.questions.every(q => q.answered))) game.finished = true;
     if (!game.available) {
       rounds.replaceChildren();
       get('score').textContent = '';
@@ -99,7 +102,7 @@ export function mountZooGame(client, root) {
       const button = document.createElement('button');
       const completed = round.questions.filter(q => q.answered).length;
       button.type = 'button';
-      button.disabled = !round.isUnlocked || Boolean(game.testWeekId && game.finished);
+      button.disabled = !round.isUnlocked || !round.questions.length || Boolean(game.testWeekId && game.finished);
       button.textContent = 'Omgång ' + (round.roundIndex + 1) +
         (round.isUnlocked ? (game.preview ? '' : ' · ' + completed + ' av ' + round.questions.length) : ' · öppnar ' + date.format(new Date(round.unlockAt)));
       button.dataset.zooRound = round.roundIndex;
@@ -153,12 +156,14 @@ export function mountZooGame(client, root) {
 
     const round = game.rounds.find(r => r.roundIndex === index && r.isUnlocked);
     if (!round) {
-      if (dialog.open && !game.finished) status.textContent = 'Omgången är inte tillgänglig.';
+      if (dialog.open) dialog.close();
+      if (!game.finished) status.textContent = 'Omgången är inte tillgänglig.';
       return;
     }
     question = game.preview ? round.questions[previewIndex] : round.questions.find(q => !q.answered);
     if (!question || game.finished) {
       status.textContent = game.finished ? 'Tävlingen är avslutad.' : (game.preview ? 'Alla bilder i omgången har visats.' : 'Alla frågor i omgången är besvarade.');
+      if (dialog.open) dialog.close();
       return;
     }
 
@@ -169,7 +174,11 @@ export function mountZooGame(client, root) {
       body: {questionId:question.questionId}
     });
     if (current !== generation) return;
-    if (photoError || !(image instanceof Blob) || !image.size) {
+    if (photoError?.context?.status === 404 || photoError?.context?.status === 422 || (!photoError && (!(image instanceof Blob) || !image.size))) {
+      unavailable.add(question.questionId);
+      return load(index, previewPosition);
+    }
+    if (photoError) {
       status.textContent = 'Porträttet kunde inte laddas.';
       loadButton.hidden = false;
       return;
@@ -181,9 +190,8 @@ export function mountZooGame(client, root) {
       await preload.decode();
     } catch {
       if (current !== generation) return;
-      status.textContent = 'Porträttet kunde inte visas.';
-      loadButton.hidden = false;
-      return;
+      unavailable.add(question.questionId);
+      return load(index, previewPosition);
     }
     if (current !== generation) return;
     portrait.src = preload.src;
