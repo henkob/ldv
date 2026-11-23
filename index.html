@@ -859,7 +859,7 @@ function show(id){window.ldvSyncPageHero?.();document.querySelectorAll('main sec
  window.addEventListener('pagehide',()=>clearTimeout(timer),{once:true});
 })();
 </script><script type="module">
-import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=13';
+import {mountZooGame} from './prototypes/zoo-quiz.mjs?v=14';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const gate=document.getElementById('ldv-gate'),title=document.getElementById('gate-title'),msg=document.getElementById('gate-msg');
 const gateDiagnostics=(stage,detail='')=>{const t=document.getElementById('gate-msg');if(t&&document.getElementById('ldv-gate'))t.textContent=stage+(detail?' ('+detail+')':'');};
