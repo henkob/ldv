@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="sv"><head>
-<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-533FSQ33"></script>
+<!-- External analytics disabled in staging -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -225,7 +225,7 @@ body :is(h1,h2,h3,h4,h5,h6),body :is(.tag,.ldv-menu-sheet button,.ldv-menu-sheet
   .ldv-admin-tabs:has(#ldv-tab-profile-views){grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .profile-views-layout{grid-template-columns:1fr}
 }
-</style></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.123</span><style>
+</style><style>#ldv-staging-banner{background:#ffd54f;color:#181818;text-align:center;padding:5px;font:700 13px system-ui}</style><script>document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.id='ldv-staging-banner';b.textContent='TESTMILJÖ – fiktiva uppgifter';document.body.prepend(b)});</script></head><body class="ldv-admin-auth"><span id="ldv-admin-auth-version">v3.123</span><style>
 /* LDV v3.73: gemensamt arbetsflöde för profilbilder i administrationen */
 .ldv-admin-avatar-summary{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important;padding:12px!important}
 #admin-photo-dialog{width:min(92vw,480px);max-height:88dvh;overflow-y:auto;padding:22px;border:1px solid #d5e1f0;border-radius:16px;background:#fff;color:#142b60;box-shadow:0 20px 70px #0c1b3c55}
@@ -362,7 +362,7 @@ button#ldv-admin-menu-open{position:fixed!important;right:19px!important;bottom:
 })();
 </script><script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
-const supabase=createClient('https://hoisvaisfeptkdwmdlmg.supabase.co','sb_publishable_pA_qhdlvQ35sIdix1GEWfA_Vn-b5Pzi');
+const supabase=createClient('https://wtrrdxurgxyvfahhgbsh.supabase.co','sb_publishable_t1aodVfT9LFzjmaACGhyKw_y_YXEq5c');
 const el=id=>document.getElementById(id);
 const profileViewsPane = el('ldv-pane-profile-views');
 const statsMonthFormat = new Intl.DateTimeFormat('sv-SE', {month:'long', year:'numeric', timeZone:'UTC'});
